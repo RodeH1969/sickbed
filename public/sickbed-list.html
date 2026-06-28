@@ -576,6 +576,23 @@
     }
   }
 
+  function getAverageBrightness(ctx, w, h) {
+    // Sample a grid of pixels rather than every pixel, for speed
+    const sampleSize = 50;
+    const data = ctx.getImageData(0, 0, w, h).data;
+    let total = 0;
+    let count = 0;
+    const step = Math.max(1, Math.floor((w * h) / (sampleSize * sampleSize)));
+    for (let i = 0; i < data.length; i += step * 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      total += (r + g + b) / 3;
+      count++;
+    }
+    return count ? total / count : 128;
+  }
+
   function capturePhoto() {
     const size = captureFrame.clientWidth;
     canvas.width = size;
@@ -590,11 +607,30 @@
     const dx = (size - drawW) / 2;
     const dy = (size - drawH) / 2;
 
+    // First pass: draw at normal brightness so we can measure the shot
     ctx.save();
     ctx.translate(size, 0);
     ctx.scale(-1, 1);
     ctx.drawImage(video, dx, dy, drawW, drawH);
     ctx.restore();
+
+    const avgBrightness = getAverageBrightness(ctx, size, size); // 0 (black) – 255 (white)
+
+    // Only correct genuinely dim/flat shots — leave already-good photos alone.
+    // Scales smoothly: darker shots get a bigger boost, well-lit shots get none.
+    if (avgBrightness < 130) {
+      const darkness = (130 - avgBrightness) / 130; // 0–1, how dark relative to threshold
+      const brightnessBoost = 100 + Math.round(darkness * 45); // 100–145%
+      const contrastBoost = 100 + Math.round(darkness * 20);   // 100–120%
+
+      ctx.clearRect(0, 0, size, size);
+      ctx.save();
+      ctx.filter = `brightness(${brightnessBoost}%) contrast(${contrastBoost}%)`;
+      ctx.translate(size, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(video, dx, dy, drawW, drawH);
+      ctx.restore();
+    }
 
     preview.src = canvas.toDataURL('image/jpeg', 0.92);
     preview.style.display = 'block';
