@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>List yourself — Sick Bed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --linen: #F7F4EE;
+    --linen-dim: #EEEAE0;
+    --ink: #2B3A2E;
+    --ink-soft: #5C6B5E;
+    --coral: #E8786B;
+    --line: #DCD6C8;
+    --white: #FFFFFF;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--linen);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 460px; margin: 0 auto; padding: 0 24px; }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 26px 0;
+    max-width: 460px;
+    margin: 0 auto;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .brand-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 0 2px var(--linen), 0 0 0 3px var(--line);
+  }
+  .wordmark {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 600;
+  }
+  .wordmark span { color: var(--coral); position: relative; top: 0.12em; }
+  .back-link {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+
+  .intro { padding: 24px 0 8px; }
+  .step-label {
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .intro h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 1.25;
+    margin-bottom: 12px;
+  }
+  .intro p {
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  .panel {
+    margin: 28px 0;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 28px 24px;
+  }
+
+  /* head-only rule banner */
+  .capture-rule {
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .capture-rule strong { color: var(--coral); font-weight: 600; }
+
+  /* camera circle capture */
+  .capture-frame {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    border: 2px dashed var(--line);
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: var(--linen-dim);
+    overflow: hidden;
+  }
+  .capture-frame.has-photo { border-style: solid; border-color: var(--coral); }
+  #cameraFeed, #capturedPreview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: scaleX(-1); /* mirror, like a real selfie camera */
+  }
+  #capturedPreview { transform: none; } /* the still frame is already captured mirrored-correct */
+  .capture-placeholder {
+    text-align: center;
+    color: var(--ink-soft);
+    position: relative;
+    z-index: 2;
+    background: rgba(247,244,238,0.92);
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .capture-frame.camera-on .capture-placeholder,
+  .capture-frame.has-photo .capture-placeholder { display: none; }
+  .capture-placeholder svg { margin-bottom: 8px; }
+  .capture-placeholder span {
+    display: block;
+    font-size: 12.5px;
+  }
+  .capture-actions { text-align: center; }
+  .btn-capture {
+    background: var(--ink);
+    color: var(--linen);
+    border: none;
+    padding: 12px 26px;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+  }
+  .capture-note {
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .field input {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--white);
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+  }
+  .field-hint {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin-top: 5px;
+  }
+  .field select {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--white);
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235C6B5E' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+  }
+  .field-optional {
+    font-weight: 400;
+    color: var(--ink-soft);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 28px 0;
+  }
+  .section-label {
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+
+  .agree-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin: 22px 0;
+    padding: 14px 16px;
+    background: var(--linen-dim);
+    border-radius: 4px;
+  }
+  .agree-row input { margin-top: 2px; }
+  .agree-row p {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+
+  .submit-btn {
+    width: 100%;
+    background: var(--coral);
+    color: var(--white);
+    border: none;
+    padding: 16px;
+    border-radius: 3px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+  }
+  .submit-btn:disabled {
+    background: var(--coral-dim, #F0B5AC);
+    cursor: not-allowed;
+  }
+
+  .expiry-note {
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin-top: 16px;
+    padding-bottom: 40px;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">
+    <img src="assets/sickbed-icon.png" class="brand-icon" alt="">
+    <div class="wordmark">sick<span>bed</span></div>
+  </div>
+  <a href="sickbed-landing.html" class="back-link">← Back</a>
+</nav>
+
+<div class="wrap">
+
+  <div class="intro">
+    <div class="step-label">List yourself</div>
+    <h1>Your mates would want to know.</h1>
+    <p>Nobody thinks less of you for being sick — most people just don't know you are. A photo and your suburb is all it takes to let them.</p>
+  </div>
+
+  <div class="panel">
+    <div class="capture-frame" id="captureFrame">
+      <video id="cameraFeed" autoplay playsinline muted></video>
+      <canvas id="captureCanvas" style="display:none;"></canvas>
+      <img id="capturedPreview" style="display:none;" alt="Your captured photo">
+      <div class="capture-placeholder" id="placeholder">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#5C6B5E" stroke-width="1.5">
+          <path d="M4 8a2 2 0 0 1 2-2h2l1-2h6l1 2h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z"/>
+          <circle cx="12" cy="12.5" r="3.5"/>
+        </svg>
+        <span>Tap below to turn<br>on your camera</span>
+      </div>
+    </div>
+    <div class="capture-actions">
+      <button class="btn-capture" id="captureBtn">Turn on camera</button>
+    </div>
+    <p class="capture-note" id="captureNote">Live photo only — no uploading from your gallery.</p>
+  </div>
+
+  <div class="section-label">About you</div>
+
+  <div class="field">
+    <label for="fullName">Full name (including middle name)</label>
+    <input type="text" id="fullName" placeholder="e.g. Roderick James Henderson">
+    <div class="field-hint">Helps people confirm it's really you.</div>
+  </div>
+
+  <div class="field">
+    <label for="nickname">Nickname</label>
+    <input type="text" id="nickname" placeholder="What your mates actually call you">
+  </div>
+
+  <div class="field">
+    <label for="school">School you went to</label>
+    <input type="text" id="school" placeholder="e.g. Ashgrove State School">
+  </div>
+
+  <div class="field">
+    <label for="suburb">Suburb or town</label>
+    <input type="text" id="suburb" placeholder="e.g. Ashgrove">
+    <div class="field-hint">Shown on your public listing so people can find you.</div>
+  </div>
+
+  <hr class="section-divider">
+
+  <div class="section-label">Delivery details</div>
+
+  <div class="field">
+    <label for="address">Full address</label>
+    <input type="text" id="address" placeholder="Street, suburb, postcode">
+    <div class="field-hint">Needed so we know where to deliver gifts people send you. Never shown publicly.</div>
+  </div>
+
+  <hr class="section-divider">
+
+  <div class="section-label">What's got you down <span class="field-optional">— optional</span></div>
+
+  <div class="field">
+    <label for="illness">Illness <span class="field-optional">(optional)</span></label>
+    <select id="illness">
+      <option value="">Prefer not to say</option>
+      <option value="flu_cold">Flu / cold</option>
+      <option value="stomach_bug">Stomach bug</option>
+      <option value="covid">COVID</option>
+      <option value="broken_bones">Broken bones</option>
+      <option value="man_flu">Man flu</option>
+    </select>
+  </div>
+
+  <div class="agree-row">
+    <input type="checkbox" id="agree">
+    <p>I confirm this is genuinely me, taken just now, and that my name, nickname, school and address are accurate. I understand this listing disappears automatically after 7 days.</p>
+  </div>
+
+  <button class="submit-btn" id="submitBtn" disabled>List yourself</button>
+  <p class="expiry-note">Gone in 7 days, automatically. No history kept.</p>
+
+</div>
+
+<script>
+  const captureBtn = document.getElementById('captureBtn');
+  const captureFrame = document.getElementById('captureFrame');
+  const placeholder = document.getElementById('placeholder');
+  const captureNote = document.getElementById('captureNote');
+  const video = document.getElementById('cameraFeed');
+  const canvas = document.getElementById('captureCanvas');
+  const preview = document.getElementById('capturedPreview');
+  const agree = document.getElementById('agree');
+  const submitBtn = document.getElementById('submitBtn');
+  const fullNameInput = document.getElementById('fullName');
+  const nicknameInput = document.getElementById('nickname');
+  const schoolInput = document.getElementById('school');
+  const suburbInput = document.getElementById('suburb');
+  const addressInput = document.getElementById('address');
+  const illnessInput = document.getElementById('illness');
+
+  let hasPhoto = false;
+  let stream = null;
+  let cameraOn = false;
+
+  async function startCamera() {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user' },
+        audio: false,
+      });
+      video.srcObject = stream;
+      cameraOn = true;
+      captureFrame.classList.add('camera-on');
+      captureBtn.textContent = 'Capture';
+      captureNote.textContent = 'Move your phone until your face fills the oval — only what\'s inside it gets saved.';
+    } catch (err) {
+      captureNote.textContent = 'Camera access was blocked. Check your browser permissions and try again.';
+      console.error('Camera error:', err);
+    }
+  }
+
+  function stopCamera() {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      stream = null;
+    }
+  }
+
+  function capturePhoto() {
+    // Draw the current video frame to a square canvas matching the displayed frame size
+    const size = captureFrame.clientWidth; // the circle is always square (width === height)
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    // Mirror to match what the user sees (selfie-style), then cover-crop like object-fit:cover
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+    const scale = Math.max(size / vw, size / vh);
+    const drawW = vw * scale;
+    const drawH = vh * scale;
+    const dx = (size - drawW) / 2;
+    const dy = (size - drawH) / 2;
+
+    ctx.save();
+    ctx.translate(size, 0);
+    ctx.scale(-1, 1); // mirror horizontally
+    ctx.drawImage(video, dx, dy, drawW, drawH);
+    ctx.restore();
+
+    // Now clip to the oval guide's exact bounds (matches the ellipse cx=110 cy=110 rx=92 ry=100 on a 220 viewBox)
+    const clipped = document.createElement('canvas');
+    clipped.width = size;
+    clipped.height = size;
+    const cctx = clipped.getContext('2d');
+    const rx = (92 / 220) * size;
+    const ry = (100 / 220) * size;
+    const cx = (110 / 220) * size;
+    const cy = (110 / 220) * size;
+    cctx.save();
+    cctx.beginPath();
+    cctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    cctx.clip();
+    cctx.drawImage(canvas, 0, 0);
+    cctx.restore();
+
+    preview.src = clipped.toDataURL('image/jpeg', 0.92);
+    preview.style.display = 'block';
+    video.style.display = 'none';
+
+    stopCamera();
+    cameraOn = false;
+    hasPhoto = true;
+    captureFrame.classList.remove('camera-on');
+    captureFrame.classList.add('has-photo');
+    captureBtn.textContent = 'Retake';
+    captureNote.textContent = 'This is the listing photo — it has to be you, taken live, just now.';
+    checkReady();
+  }
+
+  captureBtn.addEventListener('click', () => {
+    if (hasPhoto) {
+      // Retake: reset and go straight back into live camera mode
+      hasPhoto = false;
+      preview.style.display = 'none';
+      video.style.display = 'block';
+      captureFrame.classList.remove('has-photo');
+      startCamera();
+      captureBtn.textContent = 'Capture';
+    } else if (!cameraOn) {
+      startCamera();
+    } else {
+      capturePhoto();
+    }
+  });
+
+  function checkReady() {
+    const ready = hasPhoto
+      && agree.checked
+      && fullNameInput.value.trim()
+      && nicknameInput.value.trim()
+      && schoolInput.value.trim()
+      && suburbInput.value.trim()
+      && addressInput.value.trim();
+    submitBtn.disabled = !ready;
+  }
+
+  [agree, fullNameInput, nicknameInput, schoolInput, suburbInput, addressInput].forEach(el => {
+    el.addEventListener('input', checkReady);
+    el.addEventListener('change', checkReady);
+  });
+
+  submitBtn.addEventListener('click', async () => {
+    if (submitBtn.disabled) return;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Listing…';
+
+    try {
+      const res = await fetch('/api/listings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: fullNameInput.value.trim(),
+          nickname: nicknameInput.value.trim(),
+          school: schoolInput.value.trim(),
+          suburb: suburbInput.value.trim(),
+          address: addressInput.value.trim(),
+          illness: illnessInput.value || null,
+          photoDataUrl: preview.src
+        })
+      });
+
+      if (!res.ok) throw new Error('Listing failed');
+
+      submitBtn.textContent = 'Listed ✓';
+      document.querySelector('.expiry-note').textContent = "You're up. Gone in 7 days, automatically.";
+    } catch (err) {
+      submitBtn.textContent = 'List yourself';
+      checkReady();
+      document.querySelector('.expiry-note').textContent = "Something went wrong — please try again.";
+      console.error(err);
+    }
+  });
+</script>
+
+</body>
+</html>

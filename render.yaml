@@ -1,0 +1,13 @@
+services:
+  # Node/Express service — serves the frontend and main API
+  - type: web
+    name: sickbed-web
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false

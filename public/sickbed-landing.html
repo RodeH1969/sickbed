@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sick Bed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --linen: #F7F4EE;
+    --linen-dim: #EEEAE0;
+    --ink: #2B3A2E;
+    --ink-soft: #5C6B5E;
+    --coral: #E8786B;
+    --coral-dim: #F0B5AC;
+    --line: #DCD6C8;
+    --white: #FFFFFF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--linen);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- NAV ---------- */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 26px 0;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .brand-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 0 2px var(--linen), 0 0 0 3px var(--line);
+  }
+  .wordmark {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .wordmark span { color: var(--coral); position: relative; top: 0.12em; }
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+  .nav-links a { color: var(--ink-soft); text-decoration: none; }
+
+  /* ---------- MASTHEAD ---------- */
+  .masthead {
+    text-align: center;
+    padding: 18px 0 28px;
+    border-bottom: 3px double var(--ink);
+  }
+  .masthead .kicker {
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .masthead h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 32px;
+    letter-spacing: -0.01em;
+  }
+  .masthead .dateline {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  .search-bar {
+    display: flex;
+    gap: 10px;
+    margin: 26px 0;
+  }
+  .search-bar input {
+    flex: 1;
+    padding: 13px 16px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--white);
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+  }
+  .search-bar input::placeholder { color: #A8A296; }
+  .search-bar button {
+    padding: 13px 22px;
+    background: var(--ink);
+    color: var(--linen);
+    border: none;
+    border-radius: 3px;
+    font-size: 14.5px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* ---------- NOTICES DIRECTORY ---------- */
+  .notices { padding-bottom: 50px; }
+
+  .suburb-group { margin-bottom: 8px; }
+  .suburb-heading {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--linen-dim);
+    padding: 9px 14px;
+    border-radius: 3px 3px 0 0;
+    border: 1px solid var(--line);
+    border-bottom: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .suburb-heading .suburb-count {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+
+  .notice-list {
+    border: 1px solid var(--line);
+    border-radius: 0 0 3px 3px;
+    background: var(--white);
+    margin-bottom: 22px;
+  }
+  .notice-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--linen-dim);
+    text-decoration: none;
+    color: inherit;
+  }
+  .notice-row:last-child { border-bottom: none; }
+  .notice-row:hover { background: var(--linen-dim); }
+
+  .notice-name {
+    font-size: 14.5px;
+    flex: 1;
+    min-width: 0;
+  }
+  .notice-name .full {
+    font-weight: 500;
+  }
+  .notice-name .nickname {
+    color: var(--ink-soft);
+    font-weight: 400;
+  }
+
+  .notice-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .notice-illness {
+    font-size: 11.5px;
+    color: var(--white);
+    background: var(--coral);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .notice-days {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+
+  .empty-state, .error-state {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 14px;
+    padding: 50px 0;
+  }
+
+  /* ---------- FOOTER ---------- */
+  .closing-note {
+    border-top: 1px solid var(--line);
+    padding: 30px 0 36px;
+    max-width: 480px;
+  }
+  .closing-note p {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-style: italic;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 22px 0 30px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+  footer a { color: var(--ink-soft); text-decoration: none; margin-left: 18px; }
+  .footer-list-link { opacity: 0.7; }
+
+  @media (max-width: 600px) {
+    .masthead h1 { font-size: 26px; }
+    .notice-row { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <nav>
+    <div class="brand">
+      <img src="assets/sickbed-icon.png" class="brand-icon" alt="">
+      <div class="wordmark">sick<span>bed</span></div>
+    </div>
+    <div class="nav-links">
+      <a href="sickbed-list.html">Not feeling well?</a>
+    </div>
+  </nav>
+
+  <div class="masthead">
+    <div class="kicker">Today's notices</div>
+    <h1>Who's under the weather</h1>
+    <div class="dateline" id="dateline"></div>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search a name or suburb — try Ashgrove">
+    <button id="searchBtn">Search</button>
+  </div>
+
+  <div class="notices" id="notices">
+    <div class="empty-state">Loading…</div>
+  </div>
+
+  <div class="closing-note">
+    <p>See someone you know? They likely won't say it out loud — but a little something on the doorstep says you noticed anyway.</p>
+  </div>
+
+  <footer>
+    <span>Sick Bed · Brisbane</span>
+    <div>
+      <a href="#">Privacy</a>
+      <a href="#">Contact</a>
+      <a href="sickbed-list.html" class="footer-list-link">Not feeling well yourself?</a>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  const notices = document.getElementById('notices');
+  const searchInput = document.getElementById('searchInput');
+  const searchBtn = document.getElementById('searchBtn');
+  const dateline = document.getElementById('dateline');
+
+  dateline.textContent = new Date().toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function renderNotices(listings) {
+    if (!listings.length) {
+      notices.innerHTML = '<div class="empty-state">No notices today — check back soon.</div>';
+      return;
+    }
+
+    // Group by suburb
+    const groups = {};
+    listings.forEach(listing => {
+      const suburb = listing.suburb || 'Unknown';
+      if (!groups[suburb]) groups[suburb] = [];
+      groups[suburb].push(listing);
+    });
+
+    // Suburbs alphabetically, people within each suburb most-recent first (API already orders this way)
+    const suburbs = Object.keys(groups).sort((a, b) => a.localeCompare(b));
+
+    notices.innerHTML = suburbs.map(suburb => {
+      const people = groups[suburb];
+      const rows = people.map(p => {
+        const fullName = escapeHtml(p.fullName || '');
+        const nickname = p.nickname ? `<span class="nickname"> (${escapeHtml(p.nickname)})</span>` : '';
+        const illnessTag = p.illness ? `<span class="notice-illness">${escapeHtml(p.illness)}</span>` : '';
+        const daysLabel = `${p.daysLeft} day${p.daysLeft === 1 ? '' : 's'} left`;
+        const linkName = p.nickname || p.fullName || '';
+        return `
+          <a class="notice-row" href="sickbed-gift.html?listingId=${encodeURIComponent(p.id)}&name=${encodeURIComponent(linkName)}&loc=${encodeURIComponent(suburb)}">
+            <span class="notice-name"><span class="full">${fullName}</span>${nickname}</span>
+            <span class="notice-right">
+              ${illnessTag}
+              <span class="notice-days">${daysLabel}</span>
+            </span>
+          </a>
+        `;
+      }).join('');
+
+      return `
+        <div class="suburb-group">
+          <div class="suburb-heading">
+            <span>${escapeHtml(suburb)}</span>
+            <span class="suburb-count">${people.length} ${people.length === 1 ? 'notice' : 'notices'}</span>
+          </div>
+          <div class="notice-list">${rows}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function loadListings(query) {
+    try {
+      const url = query ? `/api/listings?q=${encodeURIComponent(query)}` : '/api/listings';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to load listings');
+      const listings = await res.json();
+      renderNotices(listings);
+    } catch (err) {
+      console.error(err);
+      notices.innerHTML = '<div class="error-state">Couldn\'t load notices right now.</div>';
+    }
+  }
+
+  function runSearch() {
+    loadListings(searchInput.value.trim());
+  }
+
+  searchBtn.addEventListener('click', runSearch);
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') runSearch();
+  });
+  searchInput.addEventListener('input', () => {
+    clearTimeout(window.__searchDebounce);
+    window.__searchDebounce = setTimeout(runSearch, 250);
+  });
+
+  loadListings();
+</script>
+
+</body>
+</html>

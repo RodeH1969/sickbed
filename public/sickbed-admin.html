@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orders — Sick Bed Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --linen: #F7F4EE;
+    --linen-dim: #EEEAE0;
+    --ink: #2B3A2E;
+    --ink-soft: #5C6B5E;
+    --coral: #E8786B;
+    --line: #DCD6C8;
+    --white: #FFFFFF;
+    --green: #5C8A5C;
+    --amber: #C99A3E;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--linen);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px 60px; }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 0;
+  }
+  .brand { display: flex; align-items: center; gap: 9px; }
+  .brand-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 0 2px var(--linen), 0 0 0 3px var(--line);
+  }
+  .wordmark { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 600; }
+  .wordmark span { color: var(--coral); position: relative; top: 0.12em; }
+  .admin-tag {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    padding: 3px 9px;
+    border-radius: 3px;
+  }
+
+  .filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+  .filter-btn {
+    border: 1px solid var(--line);
+    background: var(--white);
+    padding: 7px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--ink-soft);
+  }
+  .filter-btn.active { border-color: var(--ink); color: var(--ink); font-weight: 600; }
+
+  .order-card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .order-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    background: var(--linen-dim);
+  }
+  .order-id { font-size: 12px; color: var(--ink-soft); font-family: 'Inter', monospace; }
+  .status-pill {
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px;
+  }
+  .status-pill.new { background: #FCE9D9; color: var(--amber); }
+  .status-pill.actioned { background: #E1ECDD; color: var(--green); }
+
+  .order-body { padding: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .order-col h4 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .order-row { font-size: 14px; margin-bottom: 6px; line-height: 1.5; }
+  .order-row strong { font-weight: 600; }
+  .note-box {
+    background: var(--linen-dim);
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 13.5px;
+    font-style: italic;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-top: 4px;
+  }
+  .address-box {
+    background: #FCF2EF;
+    border: 1px solid var(--coral);
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  .order-foot {
+    border-top: 1px solid var(--line);
+    padding: 12px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .order-total { font-size: 13.5px; color: var(--ink-soft); }
+  .order-total strong { color: var(--ink); }
+  .mark-btn {
+    background: var(--ink);
+    color: var(--linen);
+    border: none;
+    padding: 9px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .mark-btn.done { background: var(--linen-dim); color: var(--ink-soft); cursor: default; }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 0;
+    color: var(--ink-soft);
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <div class="brand">
+      <img src="assets/sickbed-icon.png" class="brand-icon" alt="">
+      <div class="wordmark">sick<span>bed</span></div>
+    </div>
+    <div class="admin-tag">Admin — orders</div>
+  </nav>
+
+  <div class="filters">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="new">New</button>
+    <button class="filter-btn" data-filter="actioned">Actioned</button>
+  </div>
+
+  <div id="orderList"></div>
+  <div class="empty-state" id="emptyState" style="display:none">No orders here yet.</div>
+
+</div>
+
+<script>
+  let orders = [];
+
+  const orderList = document.getElementById('orderList');
+  const emptyState = document.getElementById('emptyState');
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  let currentFilter = 'all';
+
+  function render() {
+    const filtered = orders.filter(o => currentFilter === 'all' || o.status === currentFilter);
+    orderList.innerHTML = '';
+    emptyState.style.display = filtered.length ? 'none' : 'block';
+
+    filtered.forEach(o => {
+      const card = document.createElement('div');
+      card.className = 'order-card';
+      card.innerHTML = `
+        <div class="order-head">
+          <span class="order-id">${o.id} · ${o.placed}</span>
+          <span class="status-pill ${o.status}">${o.status === 'new' ? 'Needs actioning' : 'Actioned'}</span>
+        </div>
+        <div class="order-body">
+          <div class="order-col">
+            <h4>Deliver to</h4>
+            <div class="order-row"><strong>${o.recipientName}</strong> — ${o.suburb}</div>
+            <div class="address-box">${o.address || 'Address collected separately'}</div>
+          </div>
+          <div class="order-col">
+            <h4>Gift &amp; note</h4>
+            <div class="order-row"><strong>${o.gift}</strong></div>
+            <div class="note-box">"${o.note}"</div>
+          </div>
+        </div>
+        <div class="order-foot">
+          <span class="order-total">From <strong>${o.sender}</strong> · <strong>${o.total}</strong></span>
+          <button class="mark-btn ${o.status === 'actioned' ? 'done' : ''}" data-id="${o.id}">
+            ${o.status === 'actioned' ? 'Done' : 'Mark as actioned'}
+          </button>
+        </div>
+      `;
+      orderList.appendChild(card);
+    });
+
+    document.querySelectorAll('.mark-btn:not(.done)').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        try {
+          const res = await fetch(`/api/orders/${btn.dataset.id}/action`, { method: 'POST' });
+          if (!res.ok) throw new Error('Failed to update order');
+          const order = orders.find(o => o.id === btn.dataset.id);
+          order.status = 'actioned';
+          render();
+        } catch (err) {
+          btn.disabled = false;
+          console.error(err);
+        }
+      });
+    });
+  }
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      render();
+    });
+  });
+
+  async function loadOrders() {
+    try {
+      const res = await fetch('/api/orders');
+      if (!res.ok) throw new Error('Failed to load orders');
+      orders = await res.json();
+      render();
+    } catch (err) {
+      console.error(err);
+      emptyState.textContent = "Couldn't load orders right now.";
+      emptyState.style.display = 'block';
+    }
+  }
+
+  loadOrders();
+</script>
+
+</body>
+</html>
