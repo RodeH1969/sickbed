@@ -13,7 +13,8 @@ create table if not exists listings (
   school text not null,              -- verification only — never shown publicly
   suburb text not null,
   address text not null,             -- delivery address — never shown publicly
-  illness text,                      -- optional: flu_cold | stomach_bug | covid | broken_bones
+  illness text,                      -- optional: flu_cold | stomach_bug | covid | broken_bones | man_flu
+  wishlist jsonb not null default '[]', -- up to 10 product keys, e.g. ["lasagne", "pizza"]
   photo_url text not null,
   created_at timestamptz not null default now()
 );

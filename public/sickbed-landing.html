@@ -158,6 +158,7 @@
     border-bottom: 1px solid var(--linen-dim);
     text-decoration: none;
     color: inherit;
+    cursor: pointer;
   }
   .notice-row:last-child { border-bottom: none; }
   .notice-row:hover { background: var(--linen-dim); }
@@ -232,6 +233,120 @@
     .masthead h1 { font-size: 26px; }
     .notice-row { flex-wrap: wrap; }
   }
+
+  /* ---------- PERSON MODAL ---------- */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(43,58,46,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 100;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal-card {
+    background: var(--white);
+    border-radius: 16px;
+    max-width: 420px;
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    position: relative;
+  }
+  .modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(43,58,46,0.08);
+    border: none;
+    color: var(--ink);
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .modal-photo {
+    width: 100%;
+    height: 220px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 16px 16px 0 0;
+  }
+  .modal-body { padding: 22px 24px 26px; }
+  .modal-name {
+    font-family: 'Fraunces', serif;
+    font-size: 21px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .modal-name .nickname { color: var(--ink-soft); font-weight: 400; font-size: 16px; }
+  .modal-loc { font-size: 13.5px; color: var(--ink-soft); margin-bottom: 12px; }
+  .modal-illness {
+    display: inline-block;
+    font-size: 12px;
+    color: var(--white);
+    background: var(--coral);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-bottom: 18px;
+  }
+  .modal-section-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--ink-soft);
+    font-weight: 700;
+    margin: 18px 0 12px;
+  }
+  .modal-wishlist {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .modal-wishlist-item {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+  }
+  .modal-wishlist-item img { width: 100%; height: 64px; object-fit: contain; margin-bottom: 6px; }
+  .modal-wishlist-item .mwi-name { font-size: 11.5px; font-weight: 600; line-height: 1.3; margin-bottom: 4px; }
+  .modal-wishlist-item .mwi-price { font-size: 11.5px; color: var(--ink-soft); margin-bottom: 8px; }
+  .modal-wishlist-item button {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 20px;
+    background: var(--ink);
+    color: var(--linen);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+  .modal-no-wishlist {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  .modal-cta {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 18px;
+    padding: 14px;
+    border-radius: 30px;
+    background: var(--coral);
+    color: var(--white);
+    font-size: 14.5px;
+    font-weight: 700;
+    text-decoration: none;
+  }
 </style>
 </head>
 <body>
@@ -278,6 +393,12 @@
 
 </div>
 
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal-card" id="modalCard">
+    <!-- filled in by JS -->
+  </div>
+</div>
+
 <script>
   const notices = document.getElementById('notices');
   const searchInput = document.getElementById('searchInput');
@@ -317,15 +438,14 @@
         const nickname = p.nickname ? `<span class="nickname"> (${escapeHtml(p.nickname)})</span>` : '';
         const illnessTag = p.illness ? `<span class="notice-illness">${escapeHtml(p.illness)}</span>` : '';
         const daysLabel = `${p.daysLeft} day${p.daysLeft === 1 ? '' : 's'} left`;
-        const linkName = p.nickname || p.fullName || '';
         return `
-          <a class="notice-row" href="sickbed-gift.html?listingId=${encodeURIComponent(p.id)}&name=${encodeURIComponent(linkName)}&loc=${encodeURIComponent(suburb)}">
+          <div class="notice-row" data-listing-id="${escapeHtml(p.id)}" role="button" tabindex="0">
             <span class="notice-name"><span class="full">${fullName}</span>${nickname}</span>
             <span class="notice-right">
               ${illnessTag}
               <span class="notice-days">${daysLabel}</span>
             </span>
-          </a>
+          </div>
         `;
       }).join('');
 
@@ -339,6 +459,20 @@
         </div>
       `;
     }).join('');
+
+    // store latest listings in memory so the modal can look up full details (incl. wishlist) without a refetch
+    window.__listingsById = {};
+    listings.forEach(p => { window.__listingsById[p.id] = p; });
+
+    notices.querySelectorAll('.notice-row').forEach(row => {
+      row.addEventListener('click', () => openModal(row.dataset.listingId));
+      row.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openModal(row.dataset.listingId);
+        }
+      });
+    });
   }
 
   async function loadListings(query) {
@@ -365,6 +499,72 @@
   searchInput.addEventListener('input', () => {
     clearTimeout(window.__searchDebounce);
     window.__searchDebounce = setTimeout(runSearch, 250);
+  });
+
+  // ---------- Person modal ----------
+  const modalBackdrop = document.getElementById('modalBackdrop');
+  const modalCard = document.getElementById('modalCard');
+
+  function openModal(listingId) {
+    const p = window.__listingsById && window.__listingsById[listingId];
+    if (!p) return;
+
+    const fullName = escapeHtml(p.fullName || '');
+    const nicknameHtml = p.nickname ? `<span class="nickname"> (${escapeHtml(p.nickname)})</span>` : '';
+    const illnessHtml = p.illness ? `<div class="modal-illness">${escapeHtml(p.illness)}</div>` : '';
+    const photoStyle = p.photoUrl ? `background-image:url('${p.photoUrl}')` : 'background:var(--linen-dim)';
+
+    let wishlistHtml;
+    if (p.wishlist && p.wishlist.length) {
+      wishlistHtml = `
+        <div class="modal-section-label">Things they'd love right now</div>
+        <div class="modal-wishlist">
+          ${p.wishlist.map(item => `
+            <div class="modal-wishlist-item">
+              <img src="${escapeHtml(item.img)}" alt="${escapeHtml(item.name)}">
+              <div class="mwi-name">${escapeHtml(item.name)}</div>
+              <div class="mwi-price">$${item.price.toFixed(2)}</div>
+              <button type="button" data-key="${escapeHtml(item.key)}">Send this</button>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } else {
+      wishlistHtml = `<div class="modal-no-wishlist">They haven't picked anything specific — you can still send a little something.</div>
+        <a class="modal-cta" href="sickbed-gift.html?listingId=${encodeURIComponent(p.id)}&name=${encodeURIComponent(p.nickname || p.fullName)}&loc=${encodeURIComponent(p.suburb)}">Send a gift</a>`;
+    }
+
+    modalCard.innerHTML = `
+      <button class="modal-close" id="modalCloseBtn" aria-label="Close">✕</button>
+      <div class="modal-photo" style="${photoStyle}"></div>
+      <div class="modal-body">
+        <div class="modal-name">${fullName}${nicknameHtml}</div>
+        <div class="modal-loc">${escapeHtml(p.suburb)}</div>
+        ${illnessHtml}
+        ${wishlistHtml}
+      </div>
+    `;
+
+    modalCard.querySelectorAll('.modal-wishlist-item button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const url = `sickbed-gift.html?listingId=${encodeURIComponent(p.id)}&name=${encodeURIComponent(p.nickname || p.fullName)}&loc=${encodeURIComponent(p.suburb)}&item=${encodeURIComponent(btn.dataset.key)}`;
+        window.location.href = url;
+      });
+    });
+
+    document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+    modalBackdrop.classList.add('open');
+  }
+
+  function closeModal() {
+    modalBackdrop.classList.remove('open');
+  }
+
+  modalBackdrop.addEventListener('click', (e) => {
+    if (e.target === modalBackdrop) closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
   });
 
   loadListings();

@@ -66,6 +66,8 @@
     font-size: 22px;
     color: rgba(255,255,255,0.9);
     flex-shrink: 0;
+    background-size: cover;
+    background-position: center;
   }
   .who-text h2 {
     font-family: 'Fraunces', serif;
@@ -73,6 +75,16 @@
     font-weight: 500;
   }
   .who-text p { font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+  .who-illness {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--white);
+    background: var(--coral);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-top: 6px;
+  }
 
   .section-label {
     font-size: 12px;
@@ -106,6 +118,16 @@
   }
   .gift-card h3 { font-size: 12.5px; font-weight: 600; margin-bottom: 4px; line-height: 1.3; }
   .gift-card .price { font-size: 12px; color: var(--ink-soft); }
+
+  .no-wishlist-note {
+    background: var(--linen-dim);
+    border-radius: 6px;
+    padding: 16px 18px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
 
   .field { margin-bottom: 22px; }
   .field label {
@@ -143,15 +165,8 @@
     margin-bottom: 10px;
   }
   .card-preview p:last-child { margin-bottom: 0; }
-  .card-preview .preview-note {
-    font-style: italic;
-    color: var(--ink-soft);
-  }
-  .card-preview .preview-items {
-    font-family: 'Inter', sans-serif;
-    font-size: 12.5px;
-    color: var(--ink-soft);
-  }
+  .card-preview .preview-note { font-style: italic; color: var(--ink-soft); }
+  .card-preview .preview-items { font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--ink-soft); }
 
   .privacy-note {
     background: var(--linen-dim);
@@ -170,12 +185,7 @@
     padding: 16px 0;
     margin-bottom: 24px;
   }
-  .order-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    margin-bottom: 8px;
-  }
+  .order-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; }
   .order-row.total { font-weight: 600; margin-top: 4px; margin-bottom: 0; }
   .order-row span:last-child { color: var(--ink-soft); }
   .order-row.total span:last-child { color: var(--ink); }
@@ -192,10 +202,7 @@
     font-family: 'Inter', sans-serif;
     cursor: pointer;
   }
-  .pay-btn:disabled {
-    background: var(--coral-dim);
-    cursor: not-allowed;
-  }
+  .pay-btn:disabled { background: var(--coral-dim); cursor: not-allowed; }
 
   .thankyou-note {
     text-align: center;
@@ -203,6 +210,13 @@
     color: var(--ink-soft);
     margin-top: 16px;
     line-height: 1.6;
+  }
+
+  .loading-state, .error-state {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 14px;
+    padding: 60px 0;
   }
 </style>
 </head>
@@ -216,190 +230,219 @@
   <a href="sickbed-landing.html" class="back-link">← Back</a>
 </nav>
 
-<div class="wrap">
-
-  <div class="who">
-    <div class="who-avatar" id="whoAvatar">R</div>
-    <div class="who-text">
-      <h2 id="whoName">Someone special</h2>
-      <p id="whoLoc">Brisbane</p>
-    </div>
-  </div>
-
-  <div class="section-label">Choose something for them</div>
-  <div class="gift-options">
-    <div class="gift-card selected" data-key="lasagne" data-price="40" data-name="Latina Beef Lasagne">
-      <img src="products/lasagne.png" class="gift-photo" alt="Latina Beef Lasagne">
-      <h3>Latina Beef Lasagne</h3>
-      <div class="price">$40.00</div>
-    </div>
-    <div class="gift-card" data-key="macandcheese" data-price="40" data-name="Herbert Adams Mac & Cheese with Pulled Beef">
-      <img src="products/macandcheese.png" class="gift-photo" alt="Herbert Adams Mac & Cheese with Pulled Beef">
-      <h3>Herbert Adams Mac & Cheese with Pulled Beef</h3>
-      <div class="price">$40.00</div>
-    </div>
-    <div class="gift-card" data-key="pesto" data-price="40" data-name="Youfoodz Chicken Pesto Pasta">
-      <img src="products/pesto.png" class="gift-photo" alt="Youfoodz Chicken Pesto Pasta">
-      <h3>Youfoodz Chicken Pesto Pasta</h3>
-      <div class="price">$40.00</div>
-    </div>
-    <div class="gift-card" data-key="quiche" data-price="40" data-name="Herbert Adams Bacon & Cheddar Quiche">
-      <img src="products/quiche.png" class="gift-photo" alt="Herbert Adams Bacon & Cheddar Quiche">
-      <h3>Herbert Adams Bacon & Cheddar Quiche</h3>
-      <div class="price">$40.00</div>
-    </div>
-    <div class="gift-card" data-key="pizza" data-price="40" data-name="Gourmet Saba Pepperoni Protein Pizza">
-      <img src="products/pizza.png" class="gift-photo" alt="Gourmet Saba Pepperoni Protein Pizza">
-      <h3>Gourmet Saba Pepperoni Protein Pizza</h3>
-      <div class="price">$40.00</div>
-    </div>
-    <div class="gift-card" data-key="lindor" data-price="30" data-name="Lindt Lindor Assorted Box">
-      <img src="products/lindor.png" class="gift-photo" alt="Lindt Lindor Assorted Box">
-      <h3>Lindt Lindor Assorted Box</h3>
-      <div class="price">$30.00</div>
-    </div>
-    <div class="gift-card" data-key="cadbury" data-price="30" data-name="Cadbury Favourites Ultimate Share">
-      <img src="products/cadbury.png" class="gift-photo" alt="Cadbury Favourites Ultimate Share">
-      <h3>Cadbury Favourites Ultimate Share</h3>
-      <div class="price">$30.00</div>
-    </div>
-  </div>
-  <p class="field-hint" style="margin-bottom:28px;">Tap to add more than one — they'll all arrive together.</p>
-
-  <div class="field">
-    <label for="sender">From</label>
-    <input type="text" id="sender" placeholder="How you'd like to sign it">
-  </div>
-
-  <div class="field">
-    <label for="note">Your note</label>
-    <textarea id="note" placeholder="Hope this makes you feel better. Love x"></textarea>
-    <div class="field-hint">This is sent straight to them as a card through Sick Bed — nothing printed, nothing inside the delivery.</div>
-  </div>
-
-  <div class="section-label">What they'll receive</div>
-  <div class="card-preview" id="cardPreview">
-    <p><strong id="previewSender">Someone</strong> sent you this because they heard you're not well.</p>
-    <p class="preview-note" id="previewNote">Hope this makes you feel better. Love x</p>
-    <p class="preview-items">A <span id="previewItems">latina beef lasagne</span> is on its way.</p>
-  </div>
-
-  <div class="privacy-note" id="closingNote">
-    We already know where to find <strong id="closingName">them</strong>. Your message arrives the moment you hit send — and not long after, something good turns up at their door.
-  </div>
-
-  <div class="order-summary">
-    <div class="order-row"><span id="summaryGift">Latina Beef Lasagne</span><span id="summaryPrice">$40.00</span></div>
-    <div class="order-row"><span>Delivery & service</span><span>$5.00</span></div>
-    <div class="order-row total"><span>Total</span><span id="summaryTotal">$45.00</span></div>
-  </div>
-
-  <button class="pay-btn" id="payBtn" disabled>Pay and send</button>
-  <p class="thankyou-note">They may send a thank-you note back once it arrives — entirely up to them, never required.</p>
-
+<div class="wrap" id="pageWrap">
+  <div class="loading-state">Loading…</div>
 </div>
 
 <script>
   const params = new URLSearchParams(window.location.search);
   const listingId = params.get('listingId') || '';
-  const name = params.get('name') || 'Someone special';
-  const loc = params.get('loc') || 'Brisbane';
-  document.getElementById('whoName').textContent = name;
-  document.getElementById('closingName').textContent = name;
-  document.getElementById('whoLoc').textContent = loc;
-  document.getElementById('whoAvatar').textContent = name.charAt(0);
-
-  const cards = document.querySelectorAll('.gift-card');
-  const summaryGift = document.getElementById('summaryGift');
-  const summaryPrice = document.getElementById('summaryPrice');
-  const summaryTotal = document.getElementById('summaryTotal');
-  const senderInput = document.getElementById('sender');
-  const noteInput = document.getElementById('note');
-  const previewSender = document.getElementById('previewSender');
-  const previewNote = document.getElementById('previewNote');
-  const previewItems = document.getElementById('previewItems');
-  const payBtn = document.getElementById('payBtn');
-
+  const preselectKey = params.get('item') || '';
+  const fallbackName = params.get('name') || 'Someone special';
+  const fallbackLoc = params.get('loc') || 'Brisbane';
   const DELIVERY_FEE = 5;
 
-  function getSelected() {
-    return Array.from(cards).filter(c => c.classList.contains('selected'));
+  const pageWrap = document.getElementById('pageWrap');
+
+  function escapeHtml(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
-  function formatItemList(names) {
-    if (names.length === 0) return 'something';
-    if (names.length === 1) return names[0].toLowerCase();
-    return names.slice(0, -1).join(', ').toLowerCase() + ' and ' + names[names.length - 1].toLowerCase();
+  function renderPage(listing) {
+    const displayName = listing.nickname || listing.fullName || fallbackName;
+    const suburb = listing.suburb || fallbackLoc;
+    const photoStyle = listing.photoUrl ? `background-image:url('${listing.photoUrl}')` : '';
+    const illnessHtml = listing.illness ? `<div class="who-illness">${escapeHtml(listing.illness)}</div>` : '';
+    const wishlist = listing.wishlist || [];
+
+    const giftOptionsHtml = wishlist.length
+      ? wishlist.map((item, i) => `
+          <div class="gift-card${i === 0 && !preselectKey ? ' selected' : ''}${item.key === preselectKey ? ' selected' : ''}"
+               data-key="${escapeHtml(item.key)}" data-price="${item.price}" data-name="${escapeHtml(item.name)}">
+            <img src="${escapeHtml(item.img)}" class="gift-photo" alt="${escapeHtml(item.name)}">
+            <h3>${escapeHtml(item.name)}</h3>
+            <div class="price">$${item.price.toFixed(2)}</div>
+          </div>
+        `).join('')
+      : '';
+
+    pageWrap.innerHTML = `
+      <div class="who">
+        <div class="who-avatar" id="whoAvatar" style="${photoStyle}">${photoStyle ? '' : escapeHtml(displayName.charAt(0))}</div>
+        <div class="who-text">
+          <h2>${escapeHtml(displayName)}</h2>
+          <p>${escapeHtml(suburb)}</p>
+          ${illnessHtml}
+        </div>
+      </div>
+
+      ${wishlist.length ? `
+        <div class="section-label">Things they'd love right now</div>
+        <div class="gift-options" id="giftOptions">${giftOptionsHtml}</div>
+        <p class="field-hint" style="margin-bottom:28px;">Tap to add more than one — they'll all arrive together.</p>
+      ` : `
+        <div class="no-wishlist-note">${escapeHtml(displayName)} hasn't picked anything specific yet — check back soon, or send a note for now and arrange something separately.</div>
+      `}
+
+      <div class="field">
+        <label for="sender">From</label>
+        <input type="text" id="sender" placeholder="How you'd like to sign it">
+      </div>
+
+      <div class="field">
+        <label for="note">Your note</label>
+        <textarea id="note" placeholder="Hope this makes you feel better. Love x"></textarea>
+        <div class="field-hint">This is sent straight to them as a card through Sick Bed — nothing printed, nothing inside the delivery.</div>
+      </div>
+
+      ${wishlist.length ? `
+        <div class="section-label">What they'll receive</div>
+        <div class="card-preview" id="cardPreview">
+          <p><strong id="previewSender">Someone</strong> sent you this because they heard you're not well.</p>
+          <p class="preview-note" id="previewNote">Hope this makes you feel better. Love x</p>
+          <p class="preview-items">A <span id="previewItems"></span> is on its way.</p>
+        </div>
+      ` : ''}
+
+      <div class="privacy-note">
+        We already know where to find <strong>${escapeHtml(displayName)}</strong>. Your message arrives the moment you hit send — and not long after, something good turns up at their door.
+      </div>
+
+      ${wishlist.length ? `
+        <div class="order-summary">
+          <div class="order-row"><span id="summaryGift">Nothing selected yet</span><span id="summaryPrice">$0.00</span></div>
+          <div class="order-row"><span>Delivery &amp; service</span><span>$${DELIVERY_FEE.toFixed(2)}</span></div>
+          <div class="order-row total"><span>Total</span><span id="summaryTotal">$0.00</span></div>
+        </div>
+      ` : ''}
+
+      <button class="pay-btn" id="payBtn" disabled>${wishlist.length ? 'Pay and send' : 'Send note'}</button>
+      <p class="thankyou-note">They may send a thank-you note back once it arrives — entirely up to them, never required.</p>
+    `;
+
+    wireUpInteractions(listing);
   }
 
-  function updateSummary() {
-    const selected = getSelected();
-    const total = selected.reduce((sum, c) => sum + parseFloat(c.dataset.price), 0);
-    const names = selected.map(c => c.querySelector('h3').textContent);
+  function wireUpInteractions(listing) {
+    const displayName = listing.nickname || listing.fullName || fallbackName;
+    const suburb = listing.suburb || fallbackLoc;
+    const wishlist = listing.wishlist || [];
 
-    summaryGift.textContent = names.length ? names.join(' + ') : 'Nothing selected yet';
-    summaryPrice.textContent = '$' + total.toFixed(2);
-    summaryTotal.textContent = '$' + (total + (selected.length ? DELIVERY_FEE : 0)).toFixed(2);
+    const cards = document.querySelectorAll('.gift-card');
+    const summaryGift = document.getElementById('summaryGift');
+    const summaryPrice = document.getElementById('summaryPrice');
+    const summaryTotal = document.getElementById('summaryTotal');
+    const senderInput = document.getElementById('sender');
+    const noteInput = document.getElementById('note');
+    const previewSender = document.getElementById('previewSender');
+    const previewNote = document.getElementById('previewNote');
+    const previewItems = document.getElementById('previewItems');
+    const payBtn = document.getElementById('payBtn');
+    const thankyouNote = document.querySelector('.thankyou-note');
 
-    previewItems.textContent = formatItemList(names);
-  }
-
-  function updatePreview() {
-    previewSender.textContent = senderInput.value.trim() || 'Add your name above';
-    previewNote.textContent = noteInput.value.trim() || "Hope this makes you feel better. Love x";
-    payBtn.disabled = senderInput.value.trim().length === 0;
-  }
-
-  cards.forEach(card => {
-    card.addEventListener('click', () => {
-      card.classList.toggle('selected');
-      if (getSelected().length === 0) card.classList.add('selected'); // never allow zero selected
-      updateSummary();
-    });
-  });
-
-  senderInput.addEventListener('input', updatePreview);
-  noteInput.addEventListener('input', updatePreview);
-
-  updateSummary();
-  updatePreview();
-
-  payBtn.addEventListener('click', async () => {
-    const selected = getSelected();
-    if (!selected.length || !senderInput.value.trim()) return;
-
-    payBtn.disabled = true;
-    payBtn.textContent = 'Sending…';
-
-    const total = selected.reduce((sum, c) => sum + parseFloat(c.dataset.price), 0) + DELIVERY_FEE;
-
-    try {
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          listingId,
-          recipientName: name,
-          recipientSuburb: loc,
-          items: selected.map(c => ({ key: c.dataset.key, name: c.dataset.name, price: parseFloat(c.dataset.price) })),
-          sender: senderInput.value.trim(),
-          note: noteInput.value.trim(),
-          deliveryFee: DELIVERY_FEE,
-          total
-        })
-      });
-
-      if (!res.ok) throw new Error('Order failed');
-
-      payBtn.textContent = 'Sent ✓';
-      document.querySelector('.thankyou-note').textContent = 'Done — they\'ll be sorted soon. Thank you for thinking of them.';
-    } catch (err) {
-      payBtn.textContent = 'Pay and send';
-      payBtn.disabled = false;
-      document.querySelector('.thankyou-note').textContent = 'Something went wrong sending that — please try again.';
-      console.error(err);
+    function getSelected() {
+      return Array.from(cards).filter(c => c.classList.contains('selected'));
     }
-  });
+
+    function formatItemList(names) {
+      if (names.length === 0) return 'something';
+      if (names.length === 1) return names[0].toLowerCase();
+      return names.slice(0, -1).join(', ').toLowerCase() + ' and ' + names[names.length - 1].toLowerCase();
+    }
+
+    function updateSummary() {
+      if (!wishlist.length) {
+        payBtn.disabled = senderInput.value.trim().length === 0;
+        return;
+      }
+      const selected = getSelected();
+      const total = selected.reduce((sum, c) => sum + parseFloat(c.dataset.price), 0);
+      const names = selected.map(c => c.querySelector('h3').textContent);
+
+      summaryGift.textContent = names.length ? names.join(' + ') : 'Nothing selected yet';
+      summaryPrice.textContent = '$' + total.toFixed(2);
+      summaryTotal.textContent = '$' + (total + (selected.length ? DELIVERY_FEE : 0)).toFixed(2);
+      if (previewItems) previewItems.textContent = formatItemList(names);
+
+      payBtn.disabled = selected.length === 0 || senderInput.value.trim().length === 0;
+    }
+
+    function updatePreview() {
+      if (previewSender) previewSender.textContent = senderInput.value.trim() || 'Add your name above';
+      if (previewNote) previewNote.textContent = noteInput.value.trim() || 'Hope this makes you feel better. Love x';
+      updateSummary();
+    }
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        card.classList.toggle('selected');
+        if (wishlist.length && getSelected().length === 0) card.classList.add('selected');
+        updateSummary();
+      });
+    });
+
+    senderInput.addEventListener('input', updatePreview);
+    noteInput.addEventListener('input', updatePreview);
+
+    updateSummary();
+    updatePreview();
+
+    payBtn.addEventListener('click', async () => {
+      const selected = getSelected();
+      if (wishlist.length && !selected.length) return;
+      if (!senderInput.value.trim()) return;
+
+      payBtn.disabled = true;
+      payBtn.textContent = wishlist.length ? 'Sending…' : 'Sending note…';
+
+      const total = selected.reduce((sum, c) => sum + parseFloat(c.dataset.price), 0) + (selected.length ? DELIVERY_FEE : 0);
+
+      try {
+        const res = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            listingId,
+            recipientName: displayName,
+            recipientSuburb: suburb,
+            items: selected.map(c => ({ key: c.dataset.key, name: c.dataset.name, price: parseFloat(c.dataset.price) })),
+            sender: senderInput.value.trim(),
+            note: noteInput.value.trim(),
+            deliveryFee: selected.length ? DELIVERY_FEE : 0,
+            total
+          })
+        });
+
+        if (!res.ok) throw new Error('Order failed');
+
+        payBtn.textContent = 'Sent ✓';
+        thankyouNote.textContent = "Done — they'll be sorted soon. Thank you for thinking of them.";
+      } catch (err) {
+        payBtn.textContent = wishlist.length ? 'Pay and send' : 'Send note';
+        payBtn.disabled = false;
+        thankyouNote.textContent = 'Something went wrong sending that — please try again.';
+        console.error(err);
+      }
+    });
+  }
+
+  async function loadListing() {
+    if (!listingId) {
+      renderPage({ fullName: fallbackName, nickname: '', suburb: fallbackLoc, wishlist: [] });
+      return;
+    }
+    try {
+      const res = await fetch(`/api/listings/${encodeURIComponent(listingId)}`);
+      if (!res.ok) throw new Error('Failed to load listing');
+      const listing = await res.json();
+      renderPage(listing);
+    } catch (err) {
+      console.error(err);
+      pageWrap.innerHTML = '<div class="error-state">Couldn\'t load this listing — they may have already been listed for 7 days, or the link is broken.</div>';
+    }
+  }
+
+  loadListing();
 </script>
 
 </body>
