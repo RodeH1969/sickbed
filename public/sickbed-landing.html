@@ -262,38 +262,52 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: rgba(43,58,46,0.08);
+    background: var(--linen-dim);
     border: none;
     color: var(--ink);
     font-size: 16px;
     cursor: pointer;
     z-index: 2;
   }
-  .modal-photo {
-    width: 100%;
-    height: 220px;
+  .modal-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 24px 24px 18px;
+  }
+  .modal-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--coral);
     background-size: cover;
     background-position: center;
-    border-radius: 16px 16px 0 0;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-size: 24px;
+    color: rgba(255,255,255,0.9);
   }
-  .modal-body { padding: 22px 24px 26px; }
+  .modal-body { padding: 0 24px 26px; }
   .modal-name {
     font-family: 'Fraunces', serif;
-    font-size: 21px;
+    font-size: 19px;
     font-weight: 600;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
+    line-height: 1.3;
   }
-  .modal-name .nickname { color: var(--ink-soft); font-weight: 400; font-size: 16px; }
-  .modal-loc { font-size: 13.5px; color: var(--ink-soft); margin-bottom: 12px; }
+  .modal-name .nickname { color: var(--ink-soft); font-weight: 400; font-size: 15px; }
+  .modal-loc { font-size: 13px; color: var(--ink-soft); margin-bottom: 8px; }
   .modal-illness {
     display: inline-block;
-    font-size: 12px;
+    font-size: 11.5px;
     color: var(--white);
     background: var(--coral);
-    padding: 4px 12px;
+    padding: 3px 11px;
     border-radius: 20px;
     font-weight: 600;
-    margin-bottom: 18px;
   }
   .modal-section-label {
     font-size: 12px;
@@ -512,7 +526,8 @@
     const fullName = escapeHtml(p.fullName || '');
     const nicknameHtml = p.nickname ? `<span class="nickname"> (${escapeHtml(p.nickname)})</span>` : '';
     const illnessHtml = p.illness ? `<div class="modal-illness">${escapeHtml(p.illness)}</div>` : '';
-    const photoStyle = p.photoUrl ? `background-image:url('${p.photoUrl}')` : 'background:var(--linen-dim)';
+    const avatarStyle = p.photoUrl ? `background-image:url('${p.photoUrl}')` : '';
+    const avatarInitial = p.photoUrl ? '' : escapeHtml((p.fullName || p.nickname || '?').charAt(0));
 
     let wishlistHtml;
     if (p.wishlist && p.wishlist.length) {
@@ -536,11 +551,15 @@
 
     modalCard.innerHTML = `
       <button class="modal-close" id="modalCloseBtn" aria-label="Close">✕</button>
-      <div class="modal-photo" style="${photoStyle}"></div>
+      <div class="modal-header">
+        <div class="modal-avatar" style="${avatarStyle}">${avatarInitial}</div>
+        <div>
+          <div class="modal-name">${fullName}${nicknameHtml}</div>
+          <div class="modal-loc">${escapeHtml(p.suburb)}</div>
+          ${illnessHtml}
+        </div>
+      </div>
       <div class="modal-body">
-        <div class="modal-name">${fullName}${nicknameHtml}</div>
-        <div class="modal-loc">${escapeHtml(p.suburb)}</div>
-        ${illnessHtml}
         ${wishlistHtml}
       </div>
     `;
