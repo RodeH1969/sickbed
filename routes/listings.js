@@ -59,7 +59,7 @@ const PRODUCT_CATALOGUE = {
   gatorade: { name: 'Gatorade Blue Bolt Mini 4 Pack', price: 20, img: 'products/gatorade.png' }
 };
 
-const MAX_WISHLIST_ITEMS = 10;
+const MAX_WISHLIST_ITEMS = 6;
 
 function daysLeftFrom(createdAt) {
   const created = new Date(createdAt);

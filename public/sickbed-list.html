@@ -476,10 +476,10 @@
   <div class="step-card">
     <div class="step-kicker">Step 3</div>
     <h2>Pick what you'd <u>love</u><br>to receive 🎁</h2>
-    <p class="wishlist-hint">Choose up to 10 — mates sending you something will only see these, so you actually get what you want.</p>
+    <p class="wishlist-hint">Choose up to 6 — mates sending you something will only see these, so you actually get what you want.</p>
 
     <div class="wishlist-grid" id="wishlistGrid"></div>
-    <div class="wishlist-count"><strong id="wishlistSelectedCount">0</strong> of 10 selected</div>
+    <div class="wishlist-count"><strong id="wishlistSelectedCount">0</strong> of 6 selected</div>
   </div>
 
   <div class="agree-row">
@@ -517,7 +517,7 @@
   const wishlistGrid = document.getElementById('wishlistGrid');
   const wishlistSelectedCount = document.getElementById('wishlistSelectedCount');
 
-  const MAX_WISHLIST_ITEMS = 10;
+  const MAX_WISHLIST_ITEMS = 6;
 
   // Same products as the gift catalogue
   const PRODUCTS = [
