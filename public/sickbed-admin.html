@@ -141,6 +141,85 @@
     color: var(--ink-soft);
     font-size: 14px;
   }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .tab-btn {
+    border: none;
+    background: none;
+    padding: 10px 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .tab-btn.active { color: var(--ink); border-bottom-color: var(--coral); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .listing-card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin-bottom: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .listing-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--coral);
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    color: rgba(255,255,255,0.9);
+  }
+  .listing-info { flex: 1; min-width: 0; }
+  .listing-name { font-size: 14.5px; font-weight: 600; }
+  .listing-name .nickname { color: var(--ink-soft); font-weight: 400; }
+  .listing-meta { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+  .listing-illness {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--white);
+    background: var(--coral);
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-top: 5px;
+  }
+  .listing-days {
+    font-size: 12px;
+    color: var(--ink-soft);
+    flex-shrink: 0;
+  }
+  .delete-btn {
+    background: var(--white);
+    color: var(--coral);
+    border: 1px solid var(--coral);
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .delete-btn:hover { background: var(--coral); color: var(--white); }
+  .delete-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -153,24 +232,52 @@
     <div class="admin-tag">Admin — orders</div>
   </nav>
 
-  <div class="filters">
-    <button class="filter-btn active" data-filter="all">All</button>
-    <button class="filter-btn" data-filter="new">New</button>
-    <button class="filter-btn" data-filter="actioned">Actioned</button>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="orders">Orders</button>
+    <button class="tab-btn" data-tab="listings">Listings</button>
   </div>
 
-  <div id="orderList"></div>
-  <div class="empty-state" id="emptyState" style="display:none">No orders here yet.</div>
+  <div class="tab-panel active" id="ordersPanel">
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="new">New</button>
+      <button class="filter-btn" data-filter="actioned">Actioned</button>
+    </div>
+
+    <div id="orderList"></div>
+    <div class="empty-state" id="emptyState" style="display:none">No orders here yet.</div>
+  </div>
+
+  <div class="tab-panel" id="listingsPanel">
+    <div id="listingList"></div>
+    <div class="empty-state" id="listingsEmptyState" style="display:none">No listings here yet.</div>
+  </div>
 
 </div>
 
 <script>
   let orders = [];
+  let listings = [];
 
   const orderList = document.getElementById('orderList');
   const emptyState = document.getElementById('emptyState');
   const filterBtns = document.querySelectorAll('.filter-btn');
   let currentFilter = 'all';
+
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const ordersPanel = document.getElementById('ordersPanel');
+  const listingsPanel = document.getElementById('listingsPanel');
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const isOrders = btn.dataset.tab === 'orders';
+      ordersPanel.classList.toggle('active', isOrders);
+      listingsPanel.classList.toggle('active', !isOrders);
+      document.querySelector('.admin-tag').textContent = isOrders ? 'Admin — orders' : 'Admin — listings';
+    });
+  });
 
   function render() {
     const filtered = orders.filter(o => currentFilter === 'all' || o.status === currentFilter);
@@ -246,7 +353,69 @@
     }
   }
 
+  // ---------- Listings tab ----------
+  const listingList = document.getElementById('listingList');
+  const listingsEmptyState = document.getElementById('listingsEmptyState');
+
+  function renderListings() {
+    listingList.innerHTML = '';
+    listingsEmptyState.style.display = listings.length ? 'none' : 'block';
+
+    listings.forEach(l => {
+      const card = document.createElement('div');
+      card.className = 'listing-card';
+      const avatarStyle = l.photoUrl ? `background-image:url('${l.photoUrl}')` : '';
+      const avatarInitial = l.photoUrl ? '' : (l.fullName || l.nickname || '?').charAt(0);
+      const illnessHtml = l.illness ? `<div class="listing-illness">${l.illness}</div>` : '';
+
+      card.innerHTML = `
+        <div class="listing-avatar" style="${avatarStyle}">${avatarInitial}</div>
+        <div class="listing-info">
+          <div class="listing-name">${l.fullName}${l.nickname ? ` <span class="nickname">(${l.nickname})</span>` : ''}</div>
+          <div class="listing-meta">${l.suburb}${l.address ? ' — ' + l.address : ''}</div>
+          ${illnessHtml}
+        </div>
+        <div class="listing-days">${l.daysLeft} day${l.daysLeft === 1 ? '' : 's'} left</div>
+        <button class="delete-btn" data-id="${l.id}">Delete</button>
+      `;
+      listingList.appendChild(card);
+    });
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Remove this listing? This cannot be undone.')) return;
+        btn.disabled = true;
+        btn.textContent = 'Removing…';
+        try {
+          const res = await fetch(`/api/listings/${btn.dataset.id}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error('Failed to delete listing');
+          listings = listings.filter(l => l.id !== btn.dataset.id);
+          renderListings();
+        } catch (err) {
+          btn.disabled = false;
+          btn.textContent = 'Delete';
+          console.error(err);
+          alert("Couldn't remove that listing — please try again.");
+        }
+      });
+    });
+  }
+
+  async function loadListings() {
+    try {
+      const res = await fetch('/api/listings?admin=true');
+      if (!res.ok) throw new Error('Failed to load listings');
+      listings = await res.json();
+      renderListings();
+    } catch (err) {
+      console.error(err);
+      listingsEmptyState.textContent = "Couldn't load listings right now.";
+      listingsEmptyState.style.display = 'block';
+    }
+  }
+
   loadOrders();
+  loadListings();
 </script>
 
 </body>

@@ -300,6 +300,38 @@
     border-radius: 20px;
     font-weight: 600;
   }
+  .modal-blurb {
+    font-size: 13.5px;
+    color: var(--ink);
+    line-height: 1.65;
+    background: var(--linen-dim);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 16px 0;
+  }
+  .modal-prompt {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .modal-send-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 14px;
+    border-radius: 30px;
+    background: var(--coral);
+    color: var(--white);
+    font-size: 14.5px;
+    font-weight: 700;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
   .modal-section-label {
     font-size: 12px;
     text-transform: uppercase;
@@ -307,32 +339,6 @@
     color: var(--ink-soft);
     font-weight: 700;
     margin: 18px 0 12px;
-  }
-  .modal-wishlist {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  .modal-wishlist-item {
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 10px;
-    text-align: center;
-  }
-  .modal-wishlist-item img { width: 100%; height: 64px; object-fit: contain; margin-bottom: 6px; }
-  .modal-wishlist-item .mwi-name { font-size: 11.5px; font-weight: 600; line-height: 1.3; margin-bottom: 4px; }
-  .modal-wishlist-item .mwi-price { font-size: 11.5px; color: var(--ink-soft); margin-bottom: 8px; }
-  .modal-wishlist-item button {
-    width: 100%;
-    padding: 8px;
-    border: none;
-    border-radius: 20px;
-    background: var(--ink);
-    color: var(--linen);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: 'Inter', sans-serif;
   }
   .modal-no-wishlist {
     font-size: 13px;
@@ -515,25 +521,20 @@
     const illnessHtml = p.illness ? `<div class="modal-illness">${escapeHtml(p.illness)}</div>` : '';
     const avatarStyle = p.photoUrl ? `background-image:url('${p.photoUrl}')` : '';
     const avatarInitial = p.photoUrl ? '' : escapeHtml((p.fullName || p.nickname || '?').charAt(0));
+    const displayName = escapeHtml(p.nickname || p.fullName || 'They');
 
-    let wishlistHtml;
+    const blurbHtml = p.illnessBlurb
+      ? `<div class="modal-blurb">${escapeHtml(p.illnessBlurb)}</div>`
+      : '';
+
+    let bottomHtml;
     if (p.wishlist && p.wishlist.length) {
-      const displayName = escapeHtml(p.nickname || p.fullName || 'their');
-      wishlistHtml = `
-        <div class="modal-section-label">Things ${displayName} would love right now</div>
-        <div class="modal-wishlist">
-          ${p.wishlist.map(item => `
-            <div class="modal-wishlist-item">
-              <img src="${escapeHtml(item.img)}" alt="${escapeHtml(item.name)}">
-              <div class="mwi-name">${escapeHtml(item.name)}</div>
-              <div class="mwi-price">$${item.price.toFixed(2)}</div>
-              <button type="button" data-key="${escapeHtml(item.key)}">Send this</button>
-            </div>
-          `).join('')}
-        </div>
+      bottomHtml = `
+        <div class="modal-prompt">Know what's the best medicine when you're crook? A mate reaching out with a small token of their wish for you to get better soon.</div>
+        <a class="modal-send-btn" href="sickbed-gift.html?listingId=${encodeURIComponent(p.id)}&name=${encodeURIComponent(p.nickname || p.fullName)}&loc=${encodeURIComponent(p.suburb)}">Send ${displayName} a little something</a>
       `;
     } else {
-      wishlistHtml = `<div class="modal-no-wishlist">They haven't picked anything to receive yet — check back soon.</div>`;
+      bottomHtml = `<div class="modal-no-wishlist">${displayName} hasn't picked anything to receive yet — check back soon.</div>`;
     }
 
     modalCard.innerHTML = `
@@ -547,16 +548,10 @@
         </div>
       </div>
       <div class="modal-body">
-        ${wishlistHtml}
+        ${blurbHtml}
+        ${bottomHtml}
       </div>
     `;
-
-    modalCard.querySelectorAll('.modal-wishlist-item button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const url = `sickbed-gift.html?listingId=${encodeURIComponent(p.id)}&name=${encodeURIComponent(p.nickname || p.fullName)}&loc=${encodeURIComponent(p.suburb)}&item=${encodeURIComponent(btn.dataset.key)}`;
-        window.location.href = url;
-      });
-    });
 
     document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
     modalBackdrop.classList.add('open');
