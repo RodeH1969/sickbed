@@ -144,90 +144,96 @@
     font-family: 'Inter', sans-serif;
   }
 
-  /* ---------- NOTICES DIRECTORY ---------- */
-  .notices { padding-bottom: 50px; }
+  /* ---------- NOTICES (death-notice style cards) ---------- */
+  .notices { padding-bottom: 30px; }
 
-  .suburb-group { margin-bottom: 8px; }
-  .suburb-heading {
-    font-family: 'Fraunces', serif;
-    font-size: 15px;
-    font-weight: 600;
+  .notices-heading {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     color: var(--ink);
-    background: var(--linen-dim);
-    padding: 9px 14px;
-    border-radius: 3px 3px 0 0;
+    font-weight: 700;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+  }
+
+  .notice-card {
     border: 1px solid var(--line);
-    border-bottom: none;
+    border-top: none;
+    background: var(--white);
+    padding: 18px 18px 16px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .notices-heading + .notice-card { border-top: 1px solid var(--line); }
+  .notice-card:hover { background: var(--linen-dim); }
+
+  .notice-card-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 2px;
+  }
+  .notice-emoji { font-size: 20px; flex-shrink: 0; }
+  .notice-card-name {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .notice-card-name .nickname {
+    font-weight: 400;
+    color: var(--ink-soft);
+    font-size: 15px;
+  }
+  .notice-card-birthyear {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    margin: 2px 0 10px 30px;
+  }
+  .notice-card-body {
+    font-size: 13.5px;
+    color: var(--ink);
+    line-height: 1.55;
+    margin: 0 0 10px 30px;
+  }
+  .notice-card-foot {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-  }
-  .suburb-heading .suburb-count {
-    font-family: 'Inter', sans-serif;
-    font-weight: 400;
+    margin-left: 30px;
     font-size: 12px;
     color: var(--ink-soft);
   }
-
-  .notice-list {
-    border: 1px solid var(--line);
-    border-radius: 0 0 3px 3px;
-    background: var(--white);
-    margin-bottom: 22px;
-  }
-  .notice-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 14px;
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--linen-dim);
-    text-decoration: none;
-    color: inherit;
-    cursor: pointer;
-  }
-  .notice-row:last-child { border-bottom: none; }
-  .notice-row:hover { background: var(--linen-dim); }
-
-  .notice-name {
-    font-size: 14.5px;
-    flex: 1;
-    min-width: 0;
-  }
-  .notice-name .full {
-    font-weight: 500;
-  }
-  .notice-name .nickname {
-    color: var(--ink-soft);
-    font-weight: 400;
-  }
-  .notice-school {
-    display: block;
-    font-size: 11.5px;
-    color: var(--ink-soft);
-    margin-top: 2px;
-  }
-
-  .notice-right {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-  }
-  .notice-illness {
-    font-size: 11.5px;
-    color: var(--white);
-    background: var(--coral);
-    padding: 3px 10px;
-    border-radius: 20px;
+  .notice-card-illness-tag {
     font-weight: 600;
-    white-space: nowrap;
+    color: var(--coral);
   }
-  .notice-days {
-    font-size: 11.5px;
-    color: var(--ink-soft);
-    white-space: nowrap;
+  .notice-card-posted {
+    font-style: italic;
   }
+
+  .view-more-wrap {
+    text-align: center;
+    margin-top: 18px;
+  }
+  .view-more-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 11px 26px;
+    border: 1px solid var(--ink);
+    border-radius: 3px;
+    background: var(--white);
+    color: var(--ink);
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+  .view-more-btn:hover { background: var(--linen-dim); }
 
   .empty-state, .error-state {
     text-align: center;
@@ -263,7 +269,9 @@
 
   @media (max-width: 600px) {
     .masthead h1 { font-size: 26px; }
-    .notice-row { flex-wrap: wrap; }
+    .notice-card-birthyear,
+    .notice-card-body,
+    .notice-card-foot { margin-left: 0; }
   }
 
   /* ---------- PERSON MODAL ---------- */
@@ -416,7 +424,7 @@
   </nav>
 
   <div class="masthead">
-    <div class="kicker">Today's notices</div>
+    <div class="kicker">Recent notices</div>
     <h1>Who's under the weather</h1>
     <div class="dateline" id="dateline"></div>
   </div>
@@ -426,8 +434,12 @@
     <button id="searchBtn">Search</button>
   </div>
 
+  <div class="notices-heading">Recent notices</div>
   <div class="notices" id="notices">
     <div class="empty-state">Loading…</div>
+  </div>
+  <div class="view-more-wrap" id="viewMoreWrap" style="display:none;">
+    <button class="view-more-btn" id="viewMoreBtn">View more notices ↓</button>
   </div>
 
   <div class="closing-note">
@@ -456,6 +468,12 @@
   const searchInput = document.getElementById('searchInput');
   const searchBtn = document.getElementById('searchBtn');
   const dateline = document.getElementById('dateline');
+  const viewMoreWrap = document.getElementById('viewMoreWrap');
+  const viewMoreBtn = document.getElementById('viewMoreBtn');
+
+  const PAGE_SIZE = 5;
+  let allListings = [];
+  let visibleCount = PAGE_SIZE;
 
   dateline.textContent = new Date().toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -466,75 +484,81 @@
       .replace(/>/g, '&gt;');
   }
 
-  function renderNotices(listings) {
-    if (!listings.length) {
-      notices.innerHTML = '<div class="empty-state">No notices today — check back soon.</div>';
+  function timeAgo(daysLeft) {
+    // daysLeft counts down from 7 — invert it to roughly say how long ago they were listed
+    const daysAgo = 7 - daysLeft;
+    if (daysAgo <= 0) return 'Posted today';
+    if (daysAgo === 1) return 'Posted yesterday';
+    return `Posted ${daysAgo} days ago`;
+  }
+
+  function renderNotices() {
+    if (!allListings.length) {
+      notices.innerHTML = '<div class="empty-state">No notices right now — check back soon.</div>';
+      viewMoreWrap.style.display = 'none';
       return;
     }
 
-    // Group by suburb
-    const groups = {};
-    listings.forEach(listing => {
-      const suburb = listing.suburb || 'Unknown';
-      if (!groups[suburb]) groups[suburb] = [];
-      groups[suburb].push(listing);
-    });
+    const visible = allListings.slice(0, visibleCount);
 
-    // Suburbs alphabetically, people within each suburb most-recent first (API already orders this way)
-    const suburbs = Object.keys(groups).sort((a, b) => a.localeCompare(b));
-
-    notices.innerHTML = suburbs.map(suburb => {
-      const people = groups[suburb];
-      const rows = people.map(p => {
-        const fullName = escapeHtml(p.fullName || '');
-        const nickname = p.nickname ? `<span class="nickname"> (${escapeHtml(p.nickname)})</span>` : '';
-        const schoolHtml = p.school ? `<span class="notice-school">${escapeHtml(p.school)}</span>` : '';
-        const illnessTag = p.illness ? `<span class="notice-illness">${escapeHtml(p.illness)}</span>` : '';
-        const daysLabel = `${p.daysLeft} day${p.daysLeft === 1 ? '' : 's'} left`;
-        return `
-          <div class="notice-row" data-listing-id="${escapeHtml(p.id)}" role="button" tabindex="0">
-            <span class="notice-name"><span class="full">${fullName}</span>${nickname}${schoolHtml}</span>
-            <span class="notice-right">
-              ${illnessTag}
-              <span class="notice-days">${daysLabel}</span>
-            </span>
-          </div>
-        `;
-      }).join('');
+    notices.innerHTML = visible.map(p => {
+      const fullName = escapeHtml((p.fullName || '').toUpperCase());
+      const nickname = p.nickname ? `<span class="nickname"> (${escapeHtml(p.nickname)})</span>` : '';
+      const emoji = p.illnessEmoji || '🛏️';
+      const birthLine = p.birthYear
+        ? `Born ${escapeHtml(p.birthYear)}${p.age != null ? ` — age ${p.age}` : ''}`
+        : '';
+      const bodyParts = [];
+      if (p.suburb) bodyParts.push(escapeHtml(p.suburb));
+      if (p.school) bodyParts.push(escapeHtml(p.school));
+      const bodyLine = bodyParts.length ? bodyParts.join(' · ') : '';
+      const illnessTag = p.illness ? `<span class="notice-card-illness-tag">${escapeHtml(p.illness)}</span>` : '<span></span>';
 
       return `
-        <div class="suburb-group">
-          <div class="suburb-heading">
-            <span>${escapeHtml(suburb)}</span>
-            <span class="suburb-count">${people.length} ${people.length === 1 ? 'notice' : 'notices'}</span>
+        <div class="notice-card" data-listing-id="${escapeHtml(p.id)}" role="button" tabindex="0">
+          <div class="notice-card-head">
+            <span class="notice-emoji">${emoji}</span>
+            <span class="notice-card-name">${fullName}${nickname}</span>
           </div>
-          <div class="notice-list">${rows}</div>
+          ${birthLine ? `<div class="notice-card-birthyear">${birthLine}</div>` : ''}
+          ${bodyLine ? `<div class="notice-card-body">${bodyLine}</div>` : ''}
+          <div class="notice-card-foot">
+            ${illnessTag}
+            <span class="notice-card-posted">${timeAgo(p.daysLeft)}</span>
+          </div>
         </div>
       `;
     }).join('');
 
-    // store latest listings in memory so the modal can look up full details (incl. wishlist) without a refetch
-    window.__listingsById = {};
-    listings.forEach(p => { window.__listingsById[p.id] = p; });
+    viewMoreWrap.style.display = visibleCount < allListings.length ? 'block' : 'none';
 
-    notices.querySelectorAll('.notice-row').forEach(row => {
-      row.addEventListener('click', () => openModal(row.dataset.listingId));
-      row.addEventListener('keydown', (e) => {
+    window.__listingsById = {};
+    allListings.forEach(p => { window.__listingsById[p.id] = p; });
+
+    notices.querySelectorAll('.notice-card').forEach(card => {
+      card.addEventListener('click', () => openModal(card.dataset.listingId));
+      card.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          openModal(row.dataset.listingId);
+          openModal(card.dataset.listingId);
         }
       });
     });
   }
+
+  viewMoreBtn.addEventListener('click', () => {
+    visibleCount += PAGE_SIZE;
+    renderNotices();
+  });
 
   async function loadListings(query) {
     try {
       const url = query ? `/api/listings?q=${encodeURIComponent(query)}` : '/api/listings';
       const res = await fetch(url);
       if (!res.ok) throw new Error('Failed to load listings');
-      const listings = await res.json();
-      renderNotices(listings);
+      allListings = await res.json();
+      visibleCount = PAGE_SIZE;
+      renderNotices();
     } catch (err) {
       console.error(err);
       notices.innerHTML = '<div class="error-state">Couldn\'t load notices right now.</div>';
@@ -583,13 +607,17 @@
       bottomHtml = `<div class="modal-no-wishlist">${displayName} hasn't picked anything to receive yet — check back soon.</div>`;
     }
 
+    const locLine = p.birthYear
+      ? `${escapeHtml(p.suburb)} · Born ${escapeHtml(p.birthYear)}${p.age != null ? ` (age ${p.age})` : ''}`
+      : escapeHtml(p.suburb);
+
     modalCard.innerHTML = `
       <button class="modal-close" id="modalCloseBtn" aria-label="Close">✕</button>
       <div class="modal-header">
         <div class="modal-avatar" style="${avatarStyle}">${avatarInitial}</div>
         <div>
           <div class="modal-name">${fullName}${nicknameHtml}</div>
-          <div class="modal-loc">${escapeHtml(p.suburb)}</div>
+          <div class="modal-loc">${locLine}</div>
           ${illnessHtml}
         </div>
       </div>

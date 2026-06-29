@@ -23,6 +23,28 @@ const ILLNESS_LABELS = {
   gout: 'Gout'
 };
 
+// A distinct emoji per illness, shown on each listing instead of a generic icon
+const ILLNESS_EMOJI = {
+  man_flu: '🤧',
+  nasty_cold: '🥶',
+  migraine: '🤕',
+  toothache: '🦷',
+  gastro: '🤢',
+  the_flu: '🤒',
+  covid: '😷',
+  bung_back: '🦴',
+  busted_knee: '🦵',
+  broken_bone: '🩹',
+  pulled_hammy: '🏃',
+  post_op: '🏥',
+  wisdom_teeth: '😬',
+  vertigo: '💫',
+  kidney_stones: '😖',
+  shingles: '🔥',
+  gout: '🦶'
+};
+const DEFAULT_EMOJI = '🛏️'; // for listings with no illness given
+
 // Short, factual blurb shown on the gift popup so senders understand what
 // their mate is actually going through before being asked to send anything.
 const ILLNESS_BLURBS = {
@@ -68,6 +90,17 @@ function daysLeftFrom(createdAt) {
   return Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000)));
 }
 
+function illnessEmojiFor(illnessKey) {
+  return illnessKey ? (ILLNESS_EMOJI[illnessKey] || DEFAULT_EMOJI) : DEFAULT_EMOJI;
+}
+
+function ageFromBirthYear(birthYear) {
+  if (!birthYear) return null;
+  const currentYear = new Date().getFullYear();
+  const age = currentYear - Number(birthYear);
+  return (age >= 0 && age < 130) ? age : null; // sanity bounds, not a hard validation rule
+}
+
 function expandWishlist(keys) {
   return (keys || [])
     .filter(key => PRODUCT_CATALOGUE[key])
@@ -80,10 +113,11 @@ function illnessBlurbFor(illnessKey) {
 
 // GET /api/listings — active, non-expired listings for the public board.
 // Shows full name + nickname together so people can confirm it's genuinely
-// their mate (e.g. "Roderick Charles Henderson (Digger)"). Street address
-// and school are never exposed here — those stay verification/delivery-only.
-// Supports ?q= for a name/suburb search, and ?admin=true (used only by the
-// admin dashboard) to also include address/school for managing listings.
+// their mate (e.g. "Roderick Charles Henderson (Digger)"), plus the school
+// they went to. Street address and mobile stay verification/delivery-only,
+// never exposed here. Supports ?q= for a name/suburb/school search, and
+// ?admin=true (used only by the admin dashboard) to also include
+// address/mobile for managing listings.
 router.get('/', async (req, res) => {
   try {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -91,8 +125,8 @@ router.get('/', async (req, res) => {
     const isAdmin = req.query.admin === 'true';
 
     const columns = isAdmin
-      ? 'id, full_name, nickname, suburb, address, school, mobile, photo_url, illness, wishlist, created_at'
-      : 'id, full_name, nickname, suburb, photo_url, illness, wishlist, created_at';
+      ? 'id, full_name, nickname, suburb, school, birth_year, address, mobile, photo_url, illness, wishlist, created_at'
+      : 'id, full_name, nickname, suburb, school, birth_year, photo_url, illness, wishlist, created_at';
 
     let query = supabase
       .from('listings')
@@ -102,7 +136,7 @@ router.get('/', async (req, res) => {
 
     if (q) {
       const escaped = q.replace(/[%_]/g, '\\$&');
-      query = query.or(`full_name.ilike.%${escaped}%,nickname.ilike.%${escaped}%,suburb.ilike.%${escaped}%`);
+      query = query.or(`full_name.ilike.%${escaped}%,nickname.ilike.%${escaped}%,suburb.ilike.%${escaped}%,school.ilike.%${escaped}%,birth_year.ilike.%${escaped}%`);
     }
 
     const { data, error } = await query;
@@ -114,11 +148,14 @@ router.get('/', async (req, res) => {
       fullName: row.full_name,
       nickname: row.nickname,
       suburb: row.suburb,
+      school: row.school,
+      birthYear: row.birth_year,
+      age: ageFromBirthYear(row.birth_year),
       address: isAdmin ? row.address : undefined,
-      school: isAdmin ? row.school : undefined,
       mobile: isAdmin ? row.mobile : undefined,
       photoUrl: row.photo_url,
       illness: row.illness ? (ILLNESS_LABELS[row.illness] || row.illness) : null,
+      illnessEmoji: illnessEmojiFor(row.illness),
       illnessBlurb: illnessBlurbFor(row.illness),
       wishlist: expandWishlist(row.wishlist),
       daysLeft: daysLeftFrom(row.created_at)
@@ -163,12 +200,18 @@ router.get('/:id', async (req, res) => {
 // POST /api/listings — create a new listing from a captured selfie
 router.post('/', async (req, res) => {
   try {
-    const { fullName, nickname, school, suburb, address, mobile, illness, wishlist, photoDataUrl } = req.body || {};
+    const { fullName, nickname, school, suburb, birthYear, address, mobile, illness, wishlist, photoDataUrl } = req.body || {};
 
-    if (!fullName || !nickname || !school || !suburb || !address || !mobile || !photoDataUrl) {
+    if (!fullName || !nickname || !school || !suburb || !birthYear || !address || !mobile || !photoDataUrl) {
       return res.status(400).json({
-        error: 'fullName, nickname, school, suburb, address, mobile and photoDataUrl are all required'
+        error: 'fullName, nickname, school, suburb, birthYear, address, mobile and photoDataUrl are all required'
       });
+    }
+
+    const yearNum = Number(birthYear);
+    const currentYear = new Date().getFullYear();
+    if (!Number.isInteger(yearNum) || yearNum < currentYear - 120 || yearNum > currentYear) {
+      return res.status(400).json({ error: 'birthYear must be a valid 4-digit year' });
     }
 
     if (illness && !ILLNESS_LABELS[illness]) {
@@ -186,13 +229,14 @@ router.post('/', async (req, res) => {
         nickname,
         school,
         suburb,
+        birth_year: String(yearNum),
         address,
         mobile,
         illness: illness || null,
         wishlist: cleanWishlist,
         photo_url: photoDataUrl
       })
-      .select('id, full_name, nickname, suburb, photo_url, illness, wishlist, created_at')
+      .select('id, full_name, nickname, suburb, school, birth_year, photo_url, illness, wishlist, created_at')
       .single();
 
     if (error) throw error;
@@ -202,8 +246,12 @@ router.post('/', async (req, res) => {
       fullName: data.full_name,
       nickname: data.nickname,
       suburb: data.suburb,
+      school: data.school,
+      birthYear: data.birth_year,
+      age: ageFromBirthYear(data.birth_year),
       photoUrl: data.photo_url,
       illness: data.illness ? (ILLNESS_LABELS[data.illness] || data.illness) : null,
+      illnessEmoji: illnessEmojiFor(data.illness),
       wishlist: expandWishlist(data.wishlist),
       daysLeft: daysLeftFrom(data.created_at)
     });

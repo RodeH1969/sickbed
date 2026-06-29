@@ -428,6 +428,12 @@
       <div class="field-hint">Shown on your public listing so mates can find you.</div>
     </div>
 
+    <div class="field">
+      <label for="birthYear">Year you were born</label>
+      <input type="number" id="birthYear" placeholder="e.g. 1985" min="1900" max="2026" step="1">
+      <div class="field-hint">Shown on your public listing — just the year, not your full birthday.</div>
+    </div>
+
     <hr class="section-divider">
 
     <div class="section-label">Delivery details</div>
@@ -511,6 +517,7 @@
   const nicknameInput = document.getElementById('nickname');
   const schoolInput = document.getElementById('school');
   const suburbInput = document.getElementById('suburb');
+  const birthYearInput = document.getElementById('birthYear');
   const addressInput = document.getElementById('address');
   const mobileInput = document.getElementById('mobile');
   const illnessInput = document.getElementById('illness');
@@ -680,12 +687,13 @@
       && nicknameInput.value.trim()
       && schoolInput.value.trim()
       && suburbInput.value.trim()
+      && birthYearInput.value.trim()
       && addressInput.value.trim()
       && mobileInput.value.trim();
     submitBtn.disabled = !ready;
   }
 
-  [agree, fullNameInput, nicknameInput, schoolInput, suburbInput, addressInput, mobileInput].forEach(el => {
+  [agree, fullNameInput, nicknameInput, schoolInput, suburbInput, birthYearInput, addressInput, mobileInput].forEach(el => {
     el.addEventListener('input', checkReady);
     el.addEventListener('change', checkReady);
   });
@@ -704,6 +712,7 @@
           nickname: nicknameInput.value.trim(),
           school: schoolInput.value.trim(),
           suburb: suburbInput.value.trim(),
+          birthYear: birthYearInput.value.trim(),
           address: addressInput.value.trim(),
           mobile: mobileInput.value.trim(),
           illness: illnessInput.value || null,
