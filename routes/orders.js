@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('orders')
-      .select('*')
+      .select('*, listings(mobile, address)')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -40,7 +40,8 @@ router.get('/', async (req, res) => {
       status: row.status,
       recipientName: row.recipient_name,
       suburb: row.recipient_suburb,
-      address: row.delivery_address || null,
+      address: (row.listings && row.listings.address) || row.delivery_address || null,
+      mobile: (row.listings && row.listings.mobile) || null,
       gift: formatItemList(row.items || []),
       note: row.note,
       sender: row.sender,

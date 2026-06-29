@@ -297,6 +297,7 @@
             <h4>Deliver to</h4>
             <div class="order-row"><strong>${o.recipientName}</strong> — ${o.suburb}</div>
             <div class="address-box">${o.address || 'Address collected separately'}</div>
+            ${o.mobile ? `<div class="order-row" style="margin-top:8px;">📱 <a href="tel:${o.mobile}" style="color:var(--ink);font-weight:600;">${o.mobile}</a></div>` : ''}
           </div>
           <div class="order-col">
             <h4>Gift &amp; note</h4>
@@ -373,6 +374,7 @@
         <div class="listing-info">
           <div class="listing-name">${l.fullName}${l.nickname ? ` <span class="nickname">(${l.nickname})</span>` : ''}</div>
           <div class="listing-meta">${l.suburb}${l.address ? ' — ' + l.address : ''}</div>
+          ${l.mobile ? `<div class="listing-meta">📱 <a href="tel:${l.mobile}" style="color:var(--ink-soft);">${l.mobile}</a></div>` : ''}
           ${illnessHtml}
         </div>
         <div class="listing-days">${l.daysLeft} day${l.daysLeft === 1 ? '' : 's'} left</div>

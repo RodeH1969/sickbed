@@ -91,7 +91,7 @@ router.get('/', async (req, res) => {
     const isAdmin = req.query.admin === 'true';
 
     const columns = isAdmin
-      ? 'id, full_name, nickname, suburb, address, school, photo_url, illness, wishlist, created_at'
+      ? 'id, full_name, nickname, suburb, address, school, mobile, photo_url, illness, wishlist, created_at'
       : 'id, full_name, nickname, suburb, photo_url, illness, wishlist, created_at';
 
     let query = supabase
@@ -116,6 +116,7 @@ router.get('/', async (req, res) => {
       suburb: row.suburb,
       address: isAdmin ? row.address : undefined,
       school: isAdmin ? row.school : undefined,
+      mobile: isAdmin ? row.mobile : undefined,
       photoUrl: row.photo_url,
       illness: row.illness ? (ILLNESS_LABELS[row.illness] || row.illness) : null,
       illnessBlurb: illnessBlurbFor(row.illness),
@@ -162,11 +163,11 @@ router.get('/:id', async (req, res) => {
 // POST /api/listings — create a new listing from a captured selfie
 router.post('/', async (req, res) => {
   try {
-    const { fullName, nickname, school, suburb, address, illness, wishlist, photoDataUrl } = req.body || {};
+    const { fullName, nickname, school, suburb, address, mobile, illness, wishlist, photoDataUrl } = req.body || {};
 
-    if (!fullName || !nickname || !school || !suburb || !address || !photoDataUrl) {
+    if (!fullName || !nickname || !school || !suburb || !address || !mobile || !photoDataUrl) {
       return res.status(400).json({
-        error: 'fullName, nickname, school, suburb, address and photoDataUrl are all required'
+        error: 'fullName, nickname, school, suburb, address, mobile and photoDataUrl are all required'
       });
     }
 
@@ -186,6 +187,7 @@ router.post('/', async (req, res) => {
         school,
         suburb,
         address,
+        mobile,
         illness: illness || null,
         wishlist: cleanWishlist,
         photo_url: photoDataUrl

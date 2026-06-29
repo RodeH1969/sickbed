@@ -438,6 +438,12 @@
       <div class="field-hint">Needed so we know where to deliver gifts mates send you. Never shown publicly.</div>
     </div>
 
+    <div class="field">
+      <label for="mobile">Mobile number</label>
+      <input type="tel" id="mobile" placeholder="04XX XXX XXX">
+      <div class="field-hint">So we can text you when a mate sends something. Never shown publicly.</div>
+    </div>
+
     <hr class="section-divider">
 
     <div class="section-label">What's got you down <span class="field-optional">— optional</span></div>
@@ -506,6 +512,7 @@
   const schoolInput = document.getElementById('school');
   const suburbInput = document.getElementById('suburb');
   const addressInput = document.getElementById('address');
+  const mobileInput = document.getElementById('mobile');
   const illnessInput = document.getElementById('illness');
   const wishlistGrid = document.getElementById('wishlistGrid');
   const wishlistSelectedCount = document.getElementById('wishlistSelectedCount');
@@ -673,11 +680,12 @@
       && nicknameInput.value.trim()
       && schoolInput.value.trim()
       && suburbInput.value.trim()
-      && addressInput.value.trim();
+      && addressInput.value.trim()
+      && mobileInput.value.trim();
     submitBtn.disabled = !ready;
   }
 
-  [agree, fullNameInput, nicknameInput, schoolInput, suburbInput, addressInput].forEach(el => {
+  [agree, fullNameInput, nicknameInput, schoolInput, suburbInput, addressInput, mobileInput].forEach(el => {
     el.addEventListener('input', checkReady);
     el.addEventListener('change', checkReady);
   });
@@ -697,6 +705,7 @@
           school: schoolInput.value.trim(),
           suburb: suburbInput.value.trim(),
           address: addressInput.value.trim(),
+          mobile: mobileInput.value.trim(),
           illness: illnessInput.value || null,
           wishlist: Array.from(selectedItems),
           photoDataUrl: preview.src
