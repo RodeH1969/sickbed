@@ -34,7 +34,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 20px;
     padding: 26px 0;
+    flex-wrap: wrap;
   }
   .brand {
     display: flex;
@@ -54,6 +56,39 @@
     color: var(--ink-soft);
   }
   .nav-links a { color: var(--ink-soft); text-decoration: none; }
+
+  .feeling-sick {
+    text-align: center;
+  }
+  .feeling-sick .prompt {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .feeling-sick .prompt span {
+    display: block;
+  }
+  .feeling-sick-btn {
+    display: inline-block;
+    padding: 6px 18px;
+    border-radius: 20px;
+    background: var(--ink);
+    color: var(--linen);
+    font-family: 'Inter', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    transition: background 0.15s ease;
+  }
+  .feeling-sick-btn:hover { background: var(--coral); }
+
+  @media (max-width: 600px) {
+    .feeling-sick-btn { font-size: 12px; padding: 7px 14px; }
+  }
 
   /* ---------- MASTHEAD ---------- */
   .masthead {
@@ -165,6 +200,12 @@
   .notice-name .nickname {
     color: var(--ink-soft);
     font-weight: 400;
+  }
+  .notice-school {
+    display: block;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin-top: 2px;
   }
 
   .notice-right {
@@ -368,6 +409,10 @@
     <div class="brand">
       <img src="assets/sickbedlogo2.png" class="brand-logo" alt="Sick Bed">
     </div>
+    <div class="feeling-sick">
+      <div class="prompt"><span>Feeling sick yourself?</span><span>Let the people who care about you know.</span></div>
+      <a href="sickbed-list.html" class="feeling-sick-btn">Go</a>
+    </div>
   </nav>
 
   <div class="masthead">
@@ -377,7 +422,7 @@
   </div>
 
   <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Search a name or suburb — try Ashgrove">
+    <input type="text" id="searchInput" placeholder="Search by name, suburb or school">
     <button id="searchBtn">Search</button>
   </div>
 
@@ -443,11 +488,12 @@
       const rows = people.map(p => {
         const fullName = escapeHtml(p.fullName || '');
         const nickname = p.nickname ? `<span class="nickname"> (${escapeHtml(p.nickname)})</span>` : '';
+        const schoolHtml = p.school ? `<span class="notice-school">${escapeHtml(p.school)}</span>` : '';
         const illnessTag = p.illness ? `<span class="notice-illness">${escapeHtml(p.illness)}</span>` : '';
         const daysLabel = `${p.daysLeft} day${p.daysLeft === 1 ? '' : 's'} left`;
         return `
           <div class="notice-row" data-listing-id="${escapeHtml(p.id)}" role="button" tabindex="0">
-            <span class="notice-name"><span class="full">${fullName}</span>${nickname}</span>
+            <span class="notice-name"><span class="full">${fullName}</span>${nickname}${schoolHtml}</span>
             <span class="notice-right">
               ${illnessTag}
               <span class="notice-days">${daysLabel}</span>
