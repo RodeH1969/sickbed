@@ -531,8 +531,9 @@
 
     let wishlistHtml;
     if (p.wishlist && p.wishlist.length) {
+      const displayName = escapeHtml(p.nickname || p.fullName || 'their');
       wishlistHtml = `
-        <div class="modal-section-label">Things they'd love right now</div>
+        <div class="modal-section-label">Things ${displayName} would love right now</div>
         <div class="modal-wishlist">
           ${p.wishlist.map(item => `
             <div class="modal-wishlist-item">
@@ -545,8 +546,7 @@
         </div>
       `;
     } else {
-      wishlistHtml = `<div class="modal-no-wishlist">They haven't picked anything specific — you can still send a little something.</div>
-        <a class="modal-cta" href="sickbed-gift.html?listingId=${encodeURIComponent(p.id)}&name=${encodeURIComponent(p.nickname || p.fullName)}&loc=${encodeURIComponent(p.suburb)}">Send a gift</a>`;
+      wishlistHtml = `<div class="modal-no-wishlist">They haven't picked anything to receive yet — check back soon.</div>`;
     }
 
     modalCard.innerHTML = `

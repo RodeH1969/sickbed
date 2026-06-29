@@ -6,6 +6,7 @@
 <title>Send something — Sick Bed</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://js.stripe.com/v3/"></script>
 <style>
   :root {
     --linen: #F7F4EE;
@@ -190,6 +191,20 @@
   .order-row span:last-child { color: var(--ink-soft); }
   .order-row.total span:last-child { color: var(--ink); }
 
+  #cardElementContainer {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 14px;
+    background: var(--white);
+    margin-bottom: 8px;
+  }
+  .card-error {
+    color: var(--coral);
+    font-size: 12.5px;
+    margin-bottom: 18px;
+    min-height: 16px;
+  }
+
   .pay-btn {
     width: 100%;
     background: var(--coral);
@@ -244,6 +259,24 @@
 
   const pageWrap = document.getElementById('pageWrap');
 
+  let stripe = null;
+  let cardElement = null;
+  let elements = null;
+
+  async function initStripe() {
+    try {
+      const res = await fetch('/api/config');
+      const config = await res.json();
+      if (config.stripePublishableKey) {
+        stripe = Stripe(config.stripePublishableKey);
+      } else {
+        console.warn('Stripe publishable key not configured.');
+      }
+    } catch (err) {
+      console.error('Failed to load Stripe config', err);
+    }
+  }
+
   function escapeHtml(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
@@ -255,18 +288,7 @@
     const illnessHtml = listing.illness ? `<div class="who-illness">${escapeHtml(listing.illness)}</div>` : '';
     const wishlist = listing.wishlist || [];
 
-    const giftOptionsHtml = wishlist.length
-      ? wishlist.map((item, i) => `
-          <div class="gift-card${i === 0 && !preselectKey ? ' selected' : ''}${item.key === preselectKey ? ' selected' : ''}"
-               data-key="${escapeHtml(item.key)}" data-price="${item.price}" data-name="${escapeHtml(item.name)}">
-            <img src="${escapeHtml(item.img)}" class="gift-photo" alt="${escapeHtml(item.name)}">
-            <h3>${escapeHtml(item.name)}</h3>
-            <div class="price">$${item.price.toFixed(2)}</div>
-          </div>
-        `).join('')
-      : '';
-
-    pageWrap.innerHTML = `
+    const whoHtml = `
       <div class="who">
         <div class="who-avatar" id="whoAvatar" style="${photoStyle}">${photoStyle ? '' : escapeHtml(displayName.charAt(0))}</div>
         <div class="who-text">
@@ -275,14 +297,29 @@
           ${illnessHtml}
         </div>
       </div>
+    `;
 
-      ${wishlist.length ? `
-        <div class="section-label">Things they'd love right now</div>
-        <div class="gift-options" id="giftOptions">${giftOptionsHtml}</div>
-        <p class="field-hint" style="margin-bottom:28px;">Tap to add more than one — they'll all arrive together.</p>
-      ` : `
-        <div class="no-wishlist-note">${escapeHtml(displayName)} hasn't picked anything specific yet — check back soon, or send a note for now and arrange something separately.</div>
-      `}
+    // Nothing to buy — there's no order to place, so don't show a form at all.
+    if (!wishlist.length) {
+      pageWrap.innerHTML = whoHtml + `
+        <div class="no-wishlist-note">${escapeHtml(displayName)} hasn't picked anything to receive yet — check back soon.</div>
+      `;
+      return;
+    }
+
+    const giftOptionsHtml = wishlist.map((item, i) => `
+      <div class="gift-card${i === 0 && !preselectKey ? ' selected' : ''}${item.key === preselectKey ? ' selected' : ''}"
+           data-key="${escapeHtml(item.key)}" data-price="${item.price}" data-name="${escapeHtml(item.name)}">
+        <img src="${escapeHtml(item.img)}" class="gift-photo" alt="${escapeHtml(item.name)}">
+        <h3>${escapeHtml(item.name)}</h3>
+        <div class="price">$${item.price.toFixed(2)}</div>
+      </div>
+    `).join('');
+
+    pageWrap.innerHTML = whoHtml + `
+      <div class="section-label">Things ${escapeHtml(displayName)} would love right now</div>
+      <div class="gift-options" id="giftOptions">${giftOptionsHtml}</div>
+      <p class="field-hint" style="margin-bottom:28px;">Tap to add more than one — they'll all arrive together.</p>
 
       <div class="field">
         <label for="sender">From</label>
@@ -295,32 +332,52 @@
         <div class="field-hint">This is sent straight to them as a card through Sick Bed — nothing printed, nothing inside the delivery.</div>
       </div>
 
-      ${wishlist.length ? `
-        <div class="section-label">What they'll receive</div>
-        <div class="card-preview" id="cardPreview">
-          <p><strong id="previewSender">Someone</strong> sent you this because they heard you're not well.</p>
-          <p class="preview-note" id="previewNote">Hope this makes you feel better. Love x</p>
-          <p class="preview-items">A <span id="previewItems"></span> is on its way.</p>
-        </div>
-      ` : ''}
+      <div class="section-label">What they'll receive</div>
+      <div class="card-preview" id="cardPreview">
+        <p><strong id="previewSender">Someone</strong> sent you this because they heard you're not well.</p>
+        <p class="preview-note" id="previewNote">Hope this makes you feel better. Love x</p>
+        <p class="preview-items">A <span id="previewItems"></span> is on its way.</p>
+      </div>
 
       <div class="privacy-note">
         We already know where to find <strong>${escapeHtml(displayName)}</strong>. Your message arrives the moment you hit send — and not long after, something good turns up at their door.
       </div>
 
-      ${wishlist.length ? `
-        <div class="order-summary">
-          <div class="order-row"><span id="summaryGift">Nothing selected yet</span><span id="summaryPrice">$0.00</span></div>
-          <div class="order-row"><span>Delivery &amp; service</span><span>$${DELIVERY_FEE.toFixed(2)}</span></div>
-          <div class="order-row total"><span>Total</span><span id="summaryTotal">$0.00</span></div>
-        </div>
-      ` : ''}
+      <div class="order-summary">
+        <div class="order-row"><span id="summaryGift">Nothing selected yet</span><span id="summaryPrice">$0.00</span></div>
+        <div class="order-row"><span>Delivery &amp; service</span><span>$${DELIVERY_FEE.toFixed(2)}</span></div>
+        <div class="order-row total"><span>Total</span><span id="summaryTotal">$0.00</span></div>
+      </div>
 
-      <button class="pay-btn" id="payBtn" disabled>${wishlist.length ? 'Pay and send' : 'Send note'}</button>
+      <div class="field">
+        <label for="cardElementContainer">Card details</label>
+        <div id="cardElementContainer"></div>
+        <div class="card-error" id="cardError"></div>
+      </div>
+
+      <button class="pay-btn" id="payBtn" disabled>Pay and send</button>
       <p class="thankyou-note">They may send a thank-you note back once it arrives — entirely up to them, never required.</p>
     `;
 
     wireUpInteractions(listing);
+
+    if (stripe) {
+      elements = stripe.elements();
+      cardElement = elements.create('card', {
+        style: {
+          base: {
+            fontSize: '15px',
+            fontFamily: '"Inter", sans-serif',
+            color: '#2B3A2E',
+            '::placeholder': { color: '#A8A296' }
+          }
+        }
+      });
+      cardElement.mount('#cardElementContainer');
+      cardElement.on('change', (event) => {
+        document.getElementById('cardError').textContent = event.error ? event.error.message : '';
+      });
+    }
   }
 
   function wireUpInteractions(listing) {
@@ -351,10 +408,6 @@
     }
 
     function updateSummary() {
-      if (!wishlist.length) {
-        payBtn.disabled = senderInput.value.trim().length === 0;
-        return;
-      }
       const selected = getSelected();
       const total = selected.reduce((sum, c) => sum + parseFloat(c.dataset.price), 0);
       const names = selected.map(c => c.querySelector('h3').textContent);
@@ -376,7 +429,7 @@
     cards.forEach(card => {
       card.addEventListener('click', () => {
         card.classList.toggle('selected');
-        if (wishlist.length && getSelected().length === 0) card.classList.add('selected');
+        if (getSelected().length === 0) card.classList.add('selected');
         updateSummary();
       });
     });
@@ -389,44 +442,84 @@
 
     payBtn.addEventListener('click', async () => {
       const selected = getSelected();
-      if (wishlist.length && !selected.length) return;
+      if (!selected.length) return;
       if (!senderInput.value.trim()) return;
 
-      payBtn.disabled = true;
-      payBtn.textContent = wishlist.length ? 'Sending…' : 'Sending note…';
+      const total = selected.reduce((sum, c) => sum + parseFloat(c.dataset.price), 0) + DELIVERY_FEE;
+      const orderItems = selected.map(c => ({ key: c.dataset.key, name: c.dataset.name, price: parseFloat(c.dataset.price) }));
 
-      const total = selected.reduce((sum, c) => sum + parseFloat(c.dataset.price), 0) + (selected.length ? DELIVERY_FEE : 0);
+      if (!stripe || !cardElement) {
+        thankyouNote.textContent = 'Payments are temporarily unavailable — please try again shortly.';
+        return;
+      }
+
+      payBtn.disabled = true;
+      payBtn.textContent = 'Processing payment…';
+      document.getElementById('cardError').textContent = '';
 
       try {
-        const res = await fetch('/api/orders', {
+        // Step 1: ask the server to create a PaymentIntent for this total
+        const intentRes = await fetch('/api/payments/create-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ total, listingId, recipientName: displayName })
+        });
+        if (!intentRes.ok) throw new Error('Could not start payment');
+        const { clientSecret } = await intentRes.json();
+
+        // Step 2: confirm the card payment directly with Stripe (card details never touch our server)
+        const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: { card: cardElement, billing_details: { name: senderInput.value.trim() } }
+        });
+
+        if (stripeError) {
+          document.getElementById('cardError').textContent = stripeError.message;
+          payBtn.textContent = 'Pay and send';
+          payBtn.disabled = false;
+          return;
+        }
+
+        if (paymentIntent.status !== 'succeeded') {
+          document.getElementById('cardError').textContent = 'Payment did not complete — please try again.';
+          payBtn.textContent = 'Pay and send';
+          payBtn.disabled = false;
+          return;
+        }
+
+        // Step 3: only now that payment has genuinely succeeded, ask the server to save the order
+        payBtn.textContent = 'Sending…';
+        const orderRes = await fetch('/api/payments/confirm-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            paymentIntentId: paymentIntent.id,
             listingId,
             recipientName: displayName,
             recipientSuburb: suburb,
-            items: selected.map(c => ({ key: c.dataset.key, name: c.dataset.name, price: parseFloat(c.dataset.price) })),
+            items: orderItems,
             sender: senderInput.value.trim(),
             note: noteInput.value.trim(),
-            deliveryFee: selected.length ? DELIVERY_FEE : 0,
+            deliveryFee: DELIVERY_FEE,
             total
           })
         });
 
-        if (!res.ok) throw new Error('Order failed');
+        if (!orderRes.ok) throw new Error('Order finalisation failed');
 
         payBtn.textContent = 'Sent ✓';
         thankyouNote.textContent = "Done — they'll be sorted soon. Thank you for thinking of them.";
       } catch (err) {
-        payBtn.textContent = wishlist.length ? 'Pay and send' : 'Send note';
+        payBtn.textContent = 'Pay and send';
         payBtn.disabled = false;
-        thankyouNote.textContent = 'Something went wrong sending that — please try again.';
+        thankyouNote.textContent = 'Something went wrong — your card was not charged successfully if this message appears. Please try again.';
         console.error(err);
       }
     });
   }
 
   async function loadListing() {
+    await initStripe();
+
     if (!listingId) {
       renderPage({ fullName: fallbackName, nickname: '', suburb: fallbackLoc, wishlist: [] });
       return;

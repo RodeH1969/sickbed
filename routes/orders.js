@@ -55,39 +55,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST /api/orders — create a gift order from the send page
-router.post('/', async (req, res) => {
-  try {
-    const { listingId, recipientName, recipientSuburb, items, sender, note, deliveryFee, total } = req.body || {};
-
-    if (!recipientName || !recipientSuburb || !items || !items.length || !sender || !total) {
-      return res.status(400).json({ error: 'Missing required order fields' });
-    }
-
-    const { data, error } = await supabase
-      .from('orders')
-      .insert({
-        listing_id: listingId || null,
-        recipient_name: recipientName,
-        recipient_suburb: recipientSuburb,
-        items,
-        sender,
-        note: note || '',
-        delivery_fee: deliveryFee || 0,
-        total,
-        status: 'new'
-      })
-      .select('id, order_code')
-      .single();
-
-    if (error) throw error;
-
-    res.status(201).json({ id: data.id, orderCode: data.order_code });
-  } catch (err) {
-    console.error('[orders:create]', err.message);
-    res.status(500).json({ error: 'Failed to create order' });
-  }
-});
+// Note: orders are created via POST /api/payments/confirm-order, only
+// after Stripe confirms the payment succeeded — see routes/payments.js.
 
 // POST /api/orders/:orderCode/action — mark an order as actioned (admin)
 router.post('/:orderCode/action', async (req, res) => {
