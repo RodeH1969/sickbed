@@ -45,7 +45,7 @@ const ILLNESS_BLURBS = {
   gout: "A gout flare usually peaks within 24 hours and settles over 3 to 10 days, bringing sudden, severe pain and swelling, often in the big toe. Resting and elevating the joint, icing it, staying well hydrated, and anti-inflammatories all help it along."
 };
 
-// Single source of truth for the 7 gift products — also used by the wishlist
+// Single source of truth for the gift products — also used by the wishlist
 // picker on the listing page and the scoped gift page.
 const PRODUCT_CATALOGUE = {
   lasagne: { name: 'Latina Beef Lasagne', price: 40, img: 'products/lasagne.png' },
@@ -54,7 +54,9 @@ const PRODUCT_CATALOGUE = {
   quiche: { name: 'Herbert Adams Bacon & Cheddar Quiche', price: 40, img: 'products/quiche.png' },
   pizza: { name: 'Gourmet Saba Pepperoni Protein Pizza', price: 40, img: 'products/pizza.png' },
   lindor: { name: 'Lindt Lindor Assorted Box', price: 30, img: 'products/lindor.png' },
-  cadbury: { name: 'Cadbury Favourites Ultimate Share', price: 30, img: 'products/cadbury.png' }
+  cadbury: { name: 'Cadbury Favourites Ultimate Share', price: 30, img: 'products/cadbury.png' },
+  hydrate: { name: 'Berocca Hydrate Raspberry Blackcurrant', price: 40, img: 'products/hydrate.png' },
+  gatorade: { name: 'Gatorade Blue Bolt Mini 4 Pack', price: 20, img: 'products/gatorade.png' }
 };
 
 const MAX_WISHLIST_ITEMS = 10;
